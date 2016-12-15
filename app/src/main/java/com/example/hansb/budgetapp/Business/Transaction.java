@@ -5,4 +5,7 @@ package com.example.hansb.budgetapp.business;
  */
 
 public interface Transaction {
+    double getValue();
+
+    String getDescription();
 }

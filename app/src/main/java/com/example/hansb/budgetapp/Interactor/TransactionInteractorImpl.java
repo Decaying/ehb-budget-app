@@ -21,9 +21,16 @@ public class TransactionInteractorImpl implements TransactionInteractor {
     @Override
     public void run(Callback callback) {
         logger.debug("fetching transactions");
-        Transaction[] transations = transactionRepository.getLatestTransations();
-        logger.debug("fetching transactions done");
+        Transaction[] transations;
 
+        try {
+            transations = transactionRepository.getLatestTransations();
+        } catch (Exception e) {
+            logger.error("fetching transactions failed", e);
+            return;
+        }
+
+        logger.debug("fetching transactions success");
         callback.onTransactionsRetrieved(transations);
     }
 }

@@ -1,15 +1,19 @@
 package com.example.hansb.budgetapp;
 
+import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.Transaction;
+import com.example.hansb.budgetapp.business.TransactionFactory;
+import com.example.hansb.budgetapp.business.TransactionFactoryImpl;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
 import com.example.hansb.budgetapp.interactor.TransactionInteractorImpl;
 
 import org.junit.Test;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertThat;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -17,12 +21,35 @@ import static org.mockito.Mockito.verify;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest extends BaseTest<TransactionInteractorImpl> {
+    private final FakeCallback callback;
+    private final TransactionFactory transactionFactory = new TransactionFactoryImpl();
     FakeTransactionRepository repository;
+
+    private class FakeCallback implements TransactionInteractor.Callback {
+
+        private boolean transactionsReceived;
+        private Transaction[] transactions;
+
+        @Override
+        public void onTransactionsRetrieved(Transaction[] message) {
+            this.transactions = message;
+            transactionsReceived = true;
+        }
+
+        public boolean areTransactionsReceived() {
+            return transactionsReceived;
+        }
+
+        public Transaction[] getTransactions() {
+            return transactions;
+        }
+    }
 
     public ExampleUnitTest() {
         super();
 
-        repository = new FakeTransactionRepository(Logger);
+        repository = new FakeTransactionRepository(Logger, transactionFactory);
+        callback = new FakeCallback();
     }
 
     @Override
@@ -31,15 +58,30 @@ public class ExampleUnitTest extends BaseTest<TransactionInteractorImpl> {
     }
 
     @Test
-    public void canLoadTransactionsOnStartup() {
-        final TransactionInteractor.Callback callback = mock(TransactionInteractor.Callback.class);
+    public void canLoadTransactions() throws Exception {
+        String transactionType = "DEPOSIT";
+        String transactionDescription = "a Euro saved, is a Euro earned.";
+        double transactionValue = 1.00;
 
-        Logger.debug("starting test");
-        repository.whenOneDepositTransactionIsAvailable();
+        repository.whenOneDepositTransactionIsAvailable(transactionType, transactionValue, transactionDescription);
 
-        Logger.debug("getting transactions from repository");
         getSut().run(callback);
 
-        verify(callback, only()).onTransactionsRetrieved(any(Transaction[].class));
+        assertTrue(callback.areTransactionsReceived());
+        if (callback.areTransactionsReceived()) {
+            Transaction transaction = callback.getTransactions()[0];
+            assertThat(transaction, instanceOf(DepositTransaction.class));
+            assertEquals(transaction.getDescription(), transactionDescription);
+            assertEquals(transaction.getValue(), transactionValue);
+        }
+    }
+
+    @Test
+    public void noTransactionsAreLoadedWhenDbUnavailable() {
+        repository.whenDbUnavailable();
+
+        getSut().run(callback);
+
+        assertFalse(callback.areTransactionsReceived());
     }
 }

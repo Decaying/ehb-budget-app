@@ -7,5 +7,5 @@ import com.example.hansb.budgetapp.business.Transaction;
  */
 
 public interface TransactionRepository {
-    Transaction[] getLatestTransations();
+    Transaction[] getLatestTransations() throws Exception;
 }
