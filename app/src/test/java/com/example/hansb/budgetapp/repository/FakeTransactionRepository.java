@@ -1,8 +1,7 @@
-package com.example.hansb.budgetapp;
+package com.example.hansb.budgetapp.repository;
 
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
-import com.example.hansb.budgetapp.repository.TransactionRepository;
 
 import org.apache.logging.log4j.Logger;
 

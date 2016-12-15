@@ -10,7 +10,7 @@ import org.apache.logging.log4j.core.config.ConfigurationFactory;
 public abstract class BaseTest<T> {
     protected final Logger Logger;
 
-    BaseTest() {
+    public BaseTest() {
         ConfigurationFactory.setConfigurationFactory(new TestConfigurationFactory());
         Logger = LogManager.getContext().getLogger(this.getClass().getName());
     }

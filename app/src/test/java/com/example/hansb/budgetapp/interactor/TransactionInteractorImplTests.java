@@ -1,11 +1,11 @@
-package com.example.hansb.budgetapp;
+package com.example.hansb.budgetapp.interactor;
 
+import com.example.hansb.budgetapp.BaseTest;
 import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
 import com.example.hansb.budgetapp.business.TransactionFactoryImpl;
-import com.example.hansb.budgetapp.interactor.TransactionInteractor;
-import com.example.hansb.budgetapp.interactor.TransactionInteractorImpl;
+import com.example.hansb.budgetapp.repository.FakeTransactionRepository;
 
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class ExampleUnitTest extends BaseTest<TransactionInteractorImpl> {
+public class TransactionInteractorImplTests extends BaseTest<TransactionInteractorImpl> {
     private final FakeCallback callback;
     private final TransactionFactory transactionFactory = new TransactionFactoryImpl();
     FakeTransactionRepository repository;
@@ -45,7 +45,7 @@ public class ExampleUnitTest extends BaseTest<TransactionInteractorImpl> {
         }
     }
 
-    public ExampleUnitTest() {
+    public TransactionInteractorImplTests() {
         super();
 
         repository = new FakeTransactionRepository(Logger, transactionFactory);
