@@ -1,13 +1,14 @@
-package com.example.hansb.budgetapp.repository.sqlite;
+package com.example.hansb.budgetapp.budgetapp.sqlite;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 
+import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
-import com.example.hansb.budgetapp.repository.TransactionRepository;
 
 import org.apache.logging.log4j.Logger;
 
@@ -53,21 +54,56 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
     }
 
     @Override
-    public Transaction[] getLatestTransations() throws Exception {
+    public Transaction[] getAllTransactions() throws Exception {
         SQLiteDatabase db = getReadableDatabase();
+        Transaction[] transactions = new Transaction[0];
 
-        Cursor cursor = db.query(TransactionEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null);
+        try {
+            transactions = queryDatabaseForTransactions(db);
+        } finally {
+            db.close();
+        }
 
-        Transaction[] transactions = new Transaction[cursor.getCount()];
+        return transactions;
+    }
+
+    private Transaction[] queryDatabaseForTransactions(SQLiteDatabase db) throws Exception {
+        Cursor cursor = null;
+        Transaction[] transactions = new Transaction[0];
+
+        try {
+            cursor = db.query(TransactionEntry.TABLE_NAME,
+                    projection,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+
+            transactions = readTransactionsFrom(cursor);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return transactions;
+    }
+
+    @NonNull
+    private Transaction[] readTransactionsFrom(Cursor cursor) throws Exception {
+        Transaction[] transactions;
+
+        transactions = new Transaction[cursor.getCount()];
+
         cursor.moveToFirst();
         transactions[0] = createTransactionFrom(cursor);
 
+        int i = 1;
+        while (cursor.moveToNext()) {
+            transactions[i] = createTransactionFrom(cursor);
+            i++;
+        }
         return transactions;
     }
 

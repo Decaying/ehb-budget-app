@@ -1,5 +1,6 @@
 package com.example.hansb.budgetapp.repository;
 
+import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
 
@@ -23,7 +24,7 @@ public class FakeTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public Transaction[] getLatestTransations() throws Exception {
+    public Transaction[] getAllTransactions() throws Exception {
         if (shouldThrowException) {
             throw new Exception("Had to fail for test.");
         }

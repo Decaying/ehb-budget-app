@@ -1,7 +1,7 @@
 package com.example.hansb.budgetapp.interactor;
 
+import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
-import com.example.hansb.budgetapp.repository.TransactionRepository;
 
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +24,7 @@ public class TransactionInteractorImpl implements TransactionInteractor {
         Transaction[] transations;
 
         try {
-            transations = transactionRepository.getLatestTransations();
+            transations = transactionRepository.getAllTransactions();
         } catch (Exception e) {
             logger.error("fetching transactions failed", e);
             return;

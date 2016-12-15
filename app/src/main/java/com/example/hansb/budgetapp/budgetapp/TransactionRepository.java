@@ -1,4 +1,4 @@
-package com.example.hansb.budgetapp.repository;
+package com.example.hansb.budgetapp.budgetapp;
 
 import com.example.hansb.budgetapp.business.Transaction;
 
@@ -7,5 +7,5 @@ import com.example.hansb.budgetapp.business.Transaction;
  */
 
 public interface TransactionRepository {
-    Transaction[] getLatestTransations() throws Exception;
+    Transaction[] getAllTransactions() throws Exception;
 }
