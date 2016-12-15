@@ -16,6 +16,7 @@ public class TransactionListActivity extends ListActivity {
     private final TransactionInteractor transactionInteractor;
 
     public TransactionListActivity(TransactionInteractor transactionInteractor) {
+        super();
         this.transactionInteractor = transactionInteractor;
     }
 

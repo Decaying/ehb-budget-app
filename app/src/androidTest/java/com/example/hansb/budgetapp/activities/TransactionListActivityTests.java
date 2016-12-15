@@ -28,7 +28,7 @@ public class TransactionListActivityTests extends ActivityBaseTest<TransactionLi
     }
 
     @Test
-    public void listDisplaysTransactionsWhenLoaded() throws Exception {
+    public void testThatListDisplaysTransactionsWhenLoaded() throws Exception {
         fakeTransactionRepository.whenOneDepositTransactionIsAvailable("DEPOSIT", 1.00, "test description");
 
         getSut();
