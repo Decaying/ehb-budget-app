@@ -6,7 +6,7 @@ import com.example.hansb.budgetapp.business.Transaction;
  * Created by HansB on 7/12/2016.
  */
 public interface TransactionInteractor {
-    void run();
+    void run(Callback callback);
 
     interface Callback {
         void onTransactionsRetrieved(Transaction[] message);

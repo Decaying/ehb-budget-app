@@ -1,49 +1,45 @@
 package com.example.hansb.budgetapp;
 
+import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
+import com.example.hansb.budgetapp.interactor.TransactionInteractorImpl;
 
 import org.junit.Test;
 
-import javax.inject.Inject;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class ExampleUnitTest extends BaseTest {
+public class ExampleUnitTest extends BaseTest<TransactionInteractorImpl> {
     FakeTransactionRepository repository;
-    FakeTransactionInteractorCallback callback;
-
-    @Inject
-    TransactionInteractor interactor;
 
     public ExampleUnitTest() {
         super();
+
+        repository = new FakeTransactionRepository(Logger);
     }
 
     @Override
-    protected void setupBudgetModule(TestBudgetModule module) {
-        repository = new FakeTransactionRepository();
-        callback = new FakeTransactionInteractorCallback();
-
-        module.setRepository(repository);
-        module.setCallback(callback);
+    protected TransactionInteractorImpl getSut() {
+        return new TransactionInteractorImpl(Logger, repository);
     }
-
 
     @Test
     public void canLoadTransactionsOnStartup() {
+        final TransactionInteractor.Callback callback = mock(TransactionInteractor.Callback.class);
+
         Logger.debug("starting test");
         repository.whenOneDepositTransactionIsAvailable();
 
-        Logger.debug("get transactions from repository");
-        interactor.run();
+        Logger.debug("getting transactions from repository");
+        getSut().run(callback);
 
-        Logger.debug("verify transactions from repository");
-        assertThat(callback.getReceivedTransactions().length, is(1));
+        verify(callback, only()).onTransactionsRetrieved(any(Transaction[].class));
     }
 }
