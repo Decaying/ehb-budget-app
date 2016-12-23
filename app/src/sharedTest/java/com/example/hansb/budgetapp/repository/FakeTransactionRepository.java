@@ -17,6 +17,7 @@ public class FakeTransactionRepository implements TransactionRepository {
     private List<Transaction> transactions = new ArrayList<Transaction>();
     private boolean shouldThrowException = false;
     private TransactionFactory transactionFactory;
+    private boolean getAllTransactionsHasBeenCalled = false;
 
     public FakeTransactionRepository(Logger logger, TransactionFactory transactionFactory) {
         this.logger = logger;
@@ -28,6 +29,7 @@ public class FakeTransactionRepository implements TransactionRepository {
         if (shouldThrowException) {
             throw new Exception("Had to fail for test.");
         }
+        getAllTransactionsHasBeenCalled = true;
         Transaction[] array = new Transaction[transactions.size()];
         logger.debug("returning " + transactions.size() + " transactions");
         return transactions.toArray(array);
@@ -41,5 +43,9 @@ public class FakeTransactionRepository implements TransactionRepository {
     public void whenDbUnavailable() {
         shouldThrowException = true;
         logger.debug("repository access will throw an exception");
+    }
+
+    public boolean getAllTransactionsHasBeenCalled() {
+        return getAllTransactionsHasBeenCalled;
     }
 }

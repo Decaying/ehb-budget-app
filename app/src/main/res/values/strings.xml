@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Budget</string>
+    <string name="title_transaction_list">Transactions</string>
 </resources>

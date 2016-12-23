@@ -1,11 +1,11 @@
 package com.example.hansb.budgetapp.budgetapp.sqlite;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 
+import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
@@ -18,7 +18,21 @@ import org.apache.logging.log4j.Logger;
 
 public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements TransactionRepository {
 
+    private final AppInjector injector;
     private TransactionFactory transactionFactory;
+    private Logger logger;
+
+    public TransactionFactory getTransactionFactory() {
+        if (transactionFactory == null)
+            transactionFactory = injector.getTransactionFactory();
+        return transactionFactory;
+    }
+
+    public Logger getLogger() {
+        if (logger == null)
+            logger = injector.getLogger(SqlLiteTransactionRepository.class);
+        return logger;
+    }
 
     private class TransactionEntry {
         private static final String TABLE_NAME = "transactions";
@@ -38,7 +52,6 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     private static final String DATABASE_NAME = "budgetapp.db";
     private static final int DATABASE_VERSION = 1;
-    private final Logger logger;
 
     private String[] projection = {
             TransactionEntry.ID,
@@ -47,18 +60,19 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
             TransactionEntry.TYPE
     };
 
-    public SqlLiteTransactionRepository(Logger logger, Context context, TransactionFactory transactionFactory) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.logger = logger;
-        this.transactionFactory = transactionFactory;
+    public SqlLiteTransactionRepository(AppInjector injector) {
+        super(injector.getContext(), DATABASE_NAME, null, DATABASE_VERSION);
+        this.injector = injector;
     }
 
     @Override
     public Transaction[] getAllTransactions() throws Exception {
+        getLogger().debug("Initialize database access");
         SQLiteDatabase db = getReadableDatabase();
         Transaction[] transactions = new Transaction[0];
 
         try {
+            getLogger().debug("Loading transactions from database");
             transactions = queryDatabaseForTransactions(db);
         } finally {
             db.close();
@@ -94,15 +108,19 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
     private Transaction[] readTransactionsFrom(Cursor cursor) throws Exception {
         Transaction[] transactions;
 
-        transactions = new Transaction[cursor.getCount()];
+        int numberOfTransactions = cursor.getCount();
 
-        cursor.moveToFirst();
-        transactions[0] = createTransactionFrom(cursor);
+        getLogger().debug(String.format("loaded %d transactions", numberOfTransactions));
+        transactions = new Transaction[numberOfTransactions];
 
-        int i = 1;
-        while (cursor.moveToNext()) {
-            transactions[i] = createTransactionFrom(cursor);
-            i++;
+        if (cursor.moveToFirst()) {
+            transactions[0] = createTransactionFrom(cursor);
+
+            int i = 1;
+            while (cursor.moveToNext()) {
+                transactions[i] = createTransactionFrom(cursor);
+                i++;
+            }
         }
         return transactions;
     }
@@ -112,17 +130,16 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         String description = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.DESCRIPTION));
         double value = cursor.getDouble(cursor.getColumnIndexOrThrow(TransactionEntry.VALUE));
 
-        return transactionFactory.create(type, description, value);
+        return getTransactionFactory().create(type, description, value);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        logger.debug("Create database");
-
+        getLogger().debug("Create transaction table");
         String CREATE_TRANSACTIONS_TABLE =
                 "CREATE TABLE " + TransactionEntry.TABLE_NAME +
                         "(" +
-                        TransactionEntry.ID + " " + TransactionEntry.ID_TYPE + " PRIMARY KEY," +
+                        TransactionEntry.ID + " " + TransactionEntry.ID_TYPE + "," +
                         TransactionEntry.DESCRIPTION + " " + TransactionEntry.DESCRIPTION_TYPE + "," +
                         TransactionEntry.TYPE + " " + TransactionEntry.TYPE_TYPE + "," +
                         TransactionEntry.VALUE + " " + TransactionEntry.VALUE_TYPE +
@@ -133,8 +150,9 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        logger.debug("Re-create database");
+        getLogger().debug("Re-create database");
 
+        getLogger().debug("Drop transaction table");
         db.execSQL("DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME);
         onCreate(db);
     }
