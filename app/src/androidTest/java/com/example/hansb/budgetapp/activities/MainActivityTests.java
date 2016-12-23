@@ -4,12 +4,7 @@ import android.support.test.rule.ActivityTestRule;
 
 import com.example.hansb.budgetapp.MainActivity;
 
-public class MainActivityTests extends ActivityBaseTest<MainActivity> {
-
-    protected MainActivityTests() {
-        super(MainActivity.class);
-    }
-
+public class MainActivityTests extends ActivityTestBase<MainActivity> {
     @Override
     protected ActivityTestRule<MainActivity> getRule() {
         return new MainActivityTestRule();

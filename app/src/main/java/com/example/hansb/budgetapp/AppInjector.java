@@ -3,46 +3,22 @@ package com.example.hansb.budgetapp;
 import android.content.Context;
 
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
-import com.example.hansb.budgetapp.budgetapp.sqlite.SqlLiteTransactionRepository;
 import com.example.hansb.budgetapp.business.TransactionFactory;
-import com.example.hansb.budgetapp.business.TransactionFactoryImpl;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
-import com.example.hansb.budgetapp.interactor.TransactionInteractorImpl;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.ConfigurationFactory;
 
 /**
  * Created by HansB on 23/12/2016.
  */
-public class AppInjector {
+public interface AppInjector {
+    TransactionRepository getTransactionRepository();
 
-    private Context context;
+    Logger getLogger(Class<?> type);
 
-    public AppInjector(Context context) {
-        this.context = context;
+    TransactionInteractor getTransactionInteractor();
 
-        ConfigurationFactory.setConfigurationFactory(new BudgetAppConfigurationFactory());
-    }
+    TransactionFactory getTransactionFactory();
 
-    public TransactionRepository getTransactionRepository() {
-        return new SqlLiteTransactionRepository(this);
-    }
-
-    public Logger getLogger(Class<?> type) {
-        return LogManager.getLogger(type);
-    }
-
-    public TransactionInteractor getTransactionInteractor() {
-        return new TransactionInteractorImpl(getLogger(TransactionInteractorImpl.class), getTransactionRepository());
-    }
-
-    public TransactionFactory getTransactionFactory() {
-        return new TransactionFactoryImpl();
-    }
-
-    public Context getContext() {
-        return context;
-    }
+    Context getContext();
 }

@@ -1,10 +1,9 @@
 package com.example.hansb.budgetapp.interactor;
 
-import com.example.hansb.budgetapp.BaseTestImpl;
+import com.example.hansb.budgetapp.TestAppInjector;
+import com.example.hansb.budgetapp.TestBaseImpl;
 import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.Transaction;
-import com.example.hansb.budgetapp.business.TransactionFactory;
-import com.example.hansb.budgetapp.business.TransactionFactoryImpl;
 import com.example.hansb.budgetapp.repository.FakeTransactionRepository;
 
 import org.junit.Test;
@@ -20,21 +19,19 @@ import static org.junit.Assert.assertThat;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class TransactionInteractorImplTests extends BaseTestImpl<TransactionInteractorImpl> {
-    private final FakeCallback callback;
-    private final TransactionFactory transactionFactory = new TransactionFactoryImpl();
-    FakeTransactionRepository repository;
+public class TransactionInteractorImplTests extends TestBaseImpl<TransactionInteractorImpl> {
+    private final TestTransactionInteractorCallback callback;
+
+    private TestAppInjector injector = new TestAppInjector();
+    private FakeTransactionRepository repository;
 
     public TransactionInteractorImplTests() {
         super();
 
-        repository = new FakeTransactionRepository(Logger, transactionFactory);
-        callback = new FakeCallback();
-    }
+        repository = new FakeTransactionRepository(injector);
+        callback = new TestTransactionInteractorCallback();
 
-    @Override
-    public TransactionInteractorImpl getSut() {
-        return new TransactionInteractorImpl(Logger, repository);
+        injector.setTransactionRepository(repository);
     }
 
     @Test
@@ -63,5 +60,10 @@ public class TransactionInteractorImplTests extends BaseTestImpl<TransactionInte
         getSut().run(callback);
 
         assertFalse(callback.areTransactionsReceived());
+    }
+
+    @Override
+    public TransactionInteractorImpl getSut() {
+        return new TransactionInteractorImpl(injector);
     }
 }

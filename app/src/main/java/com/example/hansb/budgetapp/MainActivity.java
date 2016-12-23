@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        injector = new AppInjector(getApplication());
+        injector = new AppInjectorImpl(getApplication());
         logger = injector.getLogger(MainActivity.class);
         logger.debug("Creating activity");
 

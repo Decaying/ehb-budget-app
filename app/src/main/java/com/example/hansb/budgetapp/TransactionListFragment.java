@@ -41,7 +41,7 @@ public class TransactionListFragment
     public TransactionListFragment() {
         super();
 
-        this.injector = new AppInjector(getActivity().getApplication());
+        throw new UnsupportedOperationException("we need an injector");
     }
 
     @SuppressLint("ValidFragment")

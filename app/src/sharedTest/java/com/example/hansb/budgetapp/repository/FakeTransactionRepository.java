@@ -1,10 +1,9 @@
 package com.example.hansb.budgetapp.repository;
 
+import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
-
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +12,14 @@ import java.util.List;
  * Created by HansB on 9/12/2016.
  */
 public class FakeTransactionRepository implements TransactionRepository {
-    private final Logger logger;
-    private List<Transaction> transactions = new ArrayList<Transaction>();
+    private final TransactionFactory transactionFactory;
+
+    private List<Transaction> transactions = new ArrayList<>();
     private boolean shouldThrowException = false;
-    private TransactionFactory transactionFactory;
     private boolean getAllTransactionsHasBeenCalled = false;
 
-    public FakeTransactionRepository(Logger logger, TransactionFactory transactionFactory) {
-        this.logger = logger;
-        this.transactionFactory = transactionFactory;
+    public FakeTransactionRepository(AppInjector injector) {
+        this.transactionFactory = injector.getTransactionFactory();
     }
 
     @Override
@@ -31,18 +29,15 @@ public class FakeTransactionRepository implements TransactionRepository {
         }
         getAllTransactionsHasBeenCalled = true;
         Transaction[] array = new Transaction[transactions.size()];
-        logger.debug("returning " + transactions.size() + " transactions");
         return transactions.toArray(array);
     }
 
     public void whenOneDepositTransactionIsAvailable(String type, double value, String description) throws Exception {
         transactions.add(transactionFactory.create(type, description, value));
-        logger.debug("one deposit transaction is now available");
     }
 
     public void whenDbUnavailable() {
         shouldThrowException = true;
-        logger.debug("repository access will throw an exception");
     }
 
     public boolean getAllTransactionsHasBeenCalled() {

@@ -5,7 +5,7 @@ import com.example.hansb.budgetapp.business.Transaction;
 /**
  * Created by HansB on 15/12/2016.
  */
-class FakeCallback implements TransactionInteractor.Callback {
+class TestTransactionInteractorCallback implements TransactionInteractor.Callback {
 
     private boolean transactionsReceived;
     private Transaction[] transactions;
