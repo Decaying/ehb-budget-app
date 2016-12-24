@@ -18,21 +18,8 @@ import org.apache.logging.log4j.Logger;
 
 public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements TransactionRepository {
 
-    private final AppInjector injector;
     private TransactionFactory transactionFactory;
     private Logger logger;
-
-    public TransactionFactory getTransactionFactory() {
-        if (transactionFactory == null)
-            transactionFactory = injector.getTransactionFactory();
-        return transactionFactory;
-    }
-
-    public Logger getLogger() {
-        if (logger == null)
-            logger = injector.getLogger(SqlLiteTransactionRepository.class);
-        return logger;
-    }
 
     private class TransactionEntry {
         private static final String TABLE_NAME = "transactions";
@@ -62,17 +49,18 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     public SqlLiteTransactionRepository(AppInjector injector) {
         super(injector.getContext(), DATABASE_NAME, null, DATABASE_VERSION);
-        this.injector = injector;
+        this.transactionFactory = injector.getTransactionFactory();
+        this.logger = injector.getLogger(SqlLiteTransactionRepository.class);
     }
 
     @Override
     public Transaction[] getAllTransactions() throws Exception {
-        getLogger().debug("Initialize database access");
+        logger.debug("Initialize database access");
         SQLiteDatabase db = getReadableDatabase();
-        Transaction[] transactions = new Transaction[0];
+        Transaction[] transactions = null;
 
         try {
-            getLogger().debug("Loading transactions from database");
+            logger.debug("Loading transactions from database");
             transactions = queryDatabaseForTransactions(db);
         } finally {
             db.close();
@@ -110,7 +98,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
         int numberOfTransactions = cursor.getCount();
 
-        getLogger().debug(String.format("loaded %d transactions", numberOfTransactions));
+        logger.debug(String.format("loaded %d transactions", numberOfTransactions));
         transactions = new Transaction[numberOfTransactions];
 
         if (cursor.moveToFirst()) {
@@ -130,12 +118,12 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         String description = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.DESCRIPTION));
         double value = cursor.getDouble(cursor.getColumnIndexOrThrow(TransactionEntry.VALUE));
 
-        return getTransactionFactory().create(type, description, value);
+        return transactionFactory.create(type, description, value);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        getLogger().debug("Create transaction table");
+        logger.debug("Create transaction table");
         String CREATE_TRANSACTIONS_TABLE =
                 "CREATE TABLE " + TransactionEntry.TABLE_NAME +
                         "(" +
@@ -150,9 +138,9 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        getLogger().debug("Re-create database");
+        logger.debug("Re-create database");
 
-        getLogger().debug("Drop transaction table");
+        logger.debug("Drop transaction table");
         db.execSQL("DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME);
         onCreate(db);
     }

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.example.hansb.budgetapp.InstrumentationTestBase;
+
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
@@ -13,17 +15,20 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public abstract class ActivityTestBase<T extends Activity> extends InstrumentationTestBase<T> {
+    private final Class<T> activityType;
     @Rule
     public ActivityTestRule<T> activityRule;
 
+    public ActivityTestBase(Class<T> activityType) {
+        this.activityType = activityType;
+    }
+
     @Override
     public T getSut() {
-        activityRule = getRule();
+        activityRule = new ActivityTestRule<>(activityType, true, false);
 
         activityRule.launchActivity(new Intent());
 
         return activityRule.getActivity();
     }
-
-    protected abstract ActivityTestRule<T> getRule();
 }

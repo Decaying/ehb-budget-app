@@ -37,8 +37,8 @@ public class TransactionListFragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener {
 
-    private AppInjector injector;
-    private Logger logger;
+    private final Logger logger;
+    private final TransactionInteractor transactionInteractor;
 
     public TransactionListFragment() {
         super();
@@ -49,18 +49,15 @@ public class TransactionListFragment
     @SuppressLint("ValidFragment")
     public TransactionListFragment(AppInjector injector) {
         super();
-        this.injector = injector;
+        this.logger = injector.getLogger(TransactionListFragment.class);
+        this.transactionInteractor = injector.getTransactionInteractor();
     }
 
     private Logger getLogger() {
-        if (logger == null)
-            logger = this.injector.getLogger(TransactionListFragment.class);
         return logger;
     }
 
     private void loadTransactions() {
-        TransactionInteractor transactionInteractor = injector.getTransactionInteractor();
-
         if (transactionInteractor != null) {
             getLogger().debug("Loading transactions");
             transactionInteractor.run(transactionInteractorCallback());

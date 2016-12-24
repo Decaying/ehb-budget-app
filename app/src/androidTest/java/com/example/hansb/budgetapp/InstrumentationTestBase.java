@@ -1,9 +1,6 @@
-package com.example.hansb.budgetapp.activities;
+package com.example.hansb.budgetapp;
 
 import android.test.InstrumentationTestCase;
-
-import com.example.hansb.budgetapp.TestBase;
-import com.example.hansb.budgetapp.TestConfigurationFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;

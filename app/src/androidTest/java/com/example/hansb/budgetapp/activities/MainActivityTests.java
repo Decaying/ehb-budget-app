@@ -1,7 +1,5 @@
 package com.example.hansb.budgetapp.activities;
 
-import android.support.test.rule.ActivityTestRule;
-
 import com.example.hansb.budgetapp.MainActivity;
 import com.example.hansb.budgetapp.TestAppInjector;
 import com.example.hansb.budgetapp.repository.FakeTransactionRepository;
@@ -12,6 +10,7 @@ public class MainActivityTests extends ActivityTestBase<MainActivity> {
     private FakeTransactionRepository fakeTransactionRepository;
 
     public MainActivityTests() {
+        super(MainActivity.class);
         TestAppInjector testAppInjector = new TestAppInjector();
 
         MainActivity.Injector = testAppInjector;
@@ -19,17 +18,6 @@ public class MainActivityTests extends ActivityTestBase<MainActivity> {
         fakeTransactionRepository = new FakeTransactionRepository(testAppInjector);
 
         testAppInjector.setTransactionRepository(fakeTransactionRepository);
-    }
-
-    @Override
-    protected ActivityTestRule<MainActivity> getRule() {
-        return new MainActivityTestRule();
-    }
-
-    private class MainActivityTestRule extends ActivityTestRule<MainActivity> {
-        public MainActivityTestRule() {
-            super(MainActivity.class);
-        }
     }
 
     @Test
