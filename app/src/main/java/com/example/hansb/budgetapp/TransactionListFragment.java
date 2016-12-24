@@ -14,8 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
 
@@ -23,7 +26,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -103,14 +105,14 @@ public class TransactionListFragment
         loadTransactions();
     }
 
-    private StableArrayAdapter<Transaction> getTransactionAdapter(List<Transaction> transactions) {
-        return new StableArrayAdapter<>(
+    private TransactionAdapter getTransactionAdapter(List<Transaction> transactions) {
+        return new TransactionAdapter(
                 getActivity(),
                 R.layout.transaction_list_item,
                 transactions);
     }
 
-    private StableArrayAdapter<Transaction> getTransactionAdapter() {
+    private TransactionAdapter getTransactionAdapter() {
         return getTransactionAdapter(new ArrayList<Transaction>());
     }
 
@@ -134,30 +136,41 @@ public class TransactionListFragment
 
     }
 
-    private class StableArrayAdapter<T> extends ArrayAdapter<T> {
+    private class TransactionAdapter extends ArrayAdapter<Transaction> {
 
-        HashMap<T, Integer> mIdMap = new HashMap<>();
+        private final Context context;
+        private final List<Transaction> transactions;
 
-        public StableArrayAdapter(Context context, int textViewResourceId,
-                                  List<T> objects) {
-            super(context, textViewResourceId, objects);
-
-            if (objects != null) {
-                for (int i = 0; i < objects.size(); ++i) {
-                    mIdMap.put(objects.get(i), i);
-                }
-            }
+        public TransactionAdapter(Context context, int textViewResourceId,
+                                  List<Transaction> transactions) {
+            super(context, textViewResourceId, transactions);
+            this.context = context;
+            this.transactions = transactions;
         }
 
         @Override
-        public long getItemId(int position) {
-            T item = getItem(position);
-            return mIdMap.get(item);
-        }
+        public View getView(int position, View convertView, ViewGroup parent) {
 
-        @Override
-        public boolean hasStableIds() {
-            return true;
+            Transaction currentTransaction = transactions.get(position);
+
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            View rowView = inflater.inflate(R.layout.transaction_list_item, parent, false);
+
+            TextView headerLine = (TextView) rowView.findViewById(R.id.headerLine);
+            TextView detailLine = (TextView) rowView.findViewById(R.id.detailLine);
+            ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
+
+            headerLine.setText(currentTransaction.getDescription());
+            detailLine.setText(String.format("Transaction value: %f", currentTransaction.getValue()));
+
+            if (currentTransaction instanceof DepositTransaction)
+                imageView.setImageResource(R.drawable.deposit);
+            else
+                imageView.setImageResource(R.drawable.withdrawal);
+
+            return rowView;
         }
 
     }

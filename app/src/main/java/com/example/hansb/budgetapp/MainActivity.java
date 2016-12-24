@@ -10,15 +10,17 @@ import static java.lang.Thread.getDefaultUncaughtExceptionHandler;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppInjector injector;
+    public static AppInjector Injector;
     private Logger logger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        injector = new AppInjectorImpl(getApplication());
-        logger = injector.getLogger(MainActivity.class);
+        if (Injector == null)
+            Injector = new AppInjectorImpl(getApplication());
+
+        logger = Injector.getLogger(MainActivity.class);
         logger.debug("Creating activity");
 
         setContentView(R.layout.activity_main);
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadTransactionList() {
-        Fragment transactionListFragment = new TransactionListFragment(injector);
+        Fragment transactionListFragment = new TransactionListFragment(Injector);
 
         getFragmentManager()
                 .beginTransaction()
