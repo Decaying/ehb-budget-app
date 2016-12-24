@@ -5,6 +5,8 @@ import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
 
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,7 @@ import java.util.List;
  */
 public class FakeTransactionRepository implements TransactionRepository {
     private final TransactionFactory transactionFactory;
+    private final Logger logger;
 
     private List<Transaction> transactions = new ArrayList<>();
     private boolean shouldThrowException = false;
@@ -20,19 +23,23 @@ public class FakeTransactionRepository implements TransactionRepository {
 
     public FakeTransactionRepository(AppInjector injector) {
         this.transactionFactory = injector.getTransactionFactory();
+        this.logger = injector.getLogger(FakeTransactionRepository.class);
     }
 
     @Override
     public Transaction[] getAllTransactions() throws Exception {
         if (shouldThrowException) {
-            throw new Exception("Had to fail for test.");
+            logger.debug("failing for test");
+            throw new Exception("Had to fail for test");
         }
+        logger.debug("Fake transaction repository has been called");
         getAllTransactionsHasBeenCalled = true;
         Transaction[] array = new Transaction[transactions.size()];
         return transactions.toArray(array);
     }
 
     public void whenOneDepositTransactionIsAvailable(String type, double value, String description) throws Exception {
+        logger.debug(String.format("One %s should be available", type));
         transactions.add(transactionFactory.create(type, description, value));
     }
 

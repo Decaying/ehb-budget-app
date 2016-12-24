@@ -20,6 +20,7 @@ public abstract class ActivityTestBase<T extends Activity> extends Instrumentati
     public ActivityTestRule<T> activityRule;
 
     public ActivityTestBase(Class<T> activityType) {
+        super();
         this.activityType = activityType;
     }
 

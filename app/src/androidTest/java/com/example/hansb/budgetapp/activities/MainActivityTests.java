@@ -12,11 +12,8 @@ public class MainActivityTests extends ActivityTestBase<MainActivity> {
     public MainActivityTests() {
         super(MainActivity.class);
         TestAppInjector testAppInjector = new TestAppInjector();
-
         MainActivity.Injector = testAppInjector;
-
         fakeTransactionRepository = new FakeTransactionRepository(testAppInjector);
-
         testAppInjector.setTransactionRepository(fakeTransactionRepository);
     }
 

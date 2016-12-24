@@ -58,10 +58,8 @@ public class TransactionListFragment
     }
 
     private void loadTransactions() {
-        if (transactionInteractor != null) {
-            getLogger().debug("Loading transactions");
-            transactionInteractor.run(transactionInteractorCallback());
-        }
+        getLogger().debug("Loading transactions");
+        transactionInteractor.run(transactionInteractorCallback());
     }
 
     @NonNull
