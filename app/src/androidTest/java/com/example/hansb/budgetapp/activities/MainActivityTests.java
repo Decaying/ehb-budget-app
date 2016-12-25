@@ -1,5 +1,6 @@
 package com.example.hansb.budgetapp.activities;
 
+import android.app.Instrumentation;
 import android.view.View;
 import android.widget.ListView;
 
@@ -22,7 +23,6 @@ public class MainActivityTests extends MainActivityTestBase {
     @Test
     public void testThatListViewIsPopulated() throws Exception {
         FakeTransactionRepository.whenOneDepositTransactionIsAvailable();
-
         MainActivity activity = getSut();
 
         ListView listview = getTransactionListView(activity);
@@ -34,7 +34,6 @@ public class MainActivityTests extends MainActivityTestBase {
     public void testThatListViewContainsDetails() throws Exception {
         String transactionDescription = "Purchased an instrumentation test";
         FakeTransactionRepository.whenOneDepositTransactionIsAvailable("DEPOSIT", 123.7458, transactionDescription);
-
         MainActivity activity = getSut();
 
         View transactionView = getTransactionItemView(activity, 0);
@@ -45,8 +44,11 @@ public class MainActivityTests extends MainActivityTestBase {
 
     @Test
     public void testThatTransactionDetailActivityCanBeCalled() throws Exception {
+        Instrumentation.ActivityMonitor activityMonitor = setupActivityMonitor();
         MainActivity activity = getSut();
 
-        callAndWaitForTransactionDetailActivity(activity);
+        clickAddTransactionButton(activity);
+
+        waitForTransactionDetailActivity(activityMonitor);
     }
 }

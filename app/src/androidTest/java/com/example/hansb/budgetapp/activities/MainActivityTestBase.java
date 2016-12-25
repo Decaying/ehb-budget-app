@@ -23,10 +23,16 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
 
     public MainActivityTestBase() {
         super(MainActivity.class);
-        TestAppInjector testAppInjector = new TestAppInjector();
-        MainActivity.Injector = testAppInjector;
-        FakeTransactionRepository = new FakeTransactionRepository(testAppInjector);
-        testAppInjector.setTransactionRepository(FakeTransactionRepository);
+    }
+
+    @Override
+    public void configureContainer(TestAppInjector injector) {
+        super.configureContainer(injector);
+
+        MainActivity.Injector = injector;
+
+        FakeTransactionRepository = new FakeTransactionRepository(injector);
+        injector.setTransactionRepository(FakeTransactionRepository);
     }
 
     protected ListView getTransactionListView(MainActivity activity) {
@@ -45,19 +51,11 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
         return transactionView;
     }
 
-    protected void callAndWaitForTransactionDetailActivity(MainActivity activity) {
-        Instrumentation.ActivityMonitor activityMonitor = setupActivityMonitor();
-
-        clickAddTransactionButton(activity);
-
-        waitForTransactionDetailActivity(activityMonitor);
-    }
-
-    private Instrumentation.ActivityMonitor setupActivityMonitor() {
+    protected Instrumentation.ActivityMonitor setupActivityMonitor() {
         return getInstrumentation().addMonitor(TransactionDetailActivity.class.getName(), null, false);
     }
 
-    private void clickAddTransactionButton(MainActivity activity) {
+    protected void clickAddTransactionButton(MainActivity activity) {
         TouchUtils.clickView(this, getAddTransactionButton(activity));
     }
 
@@ -69,7 +67,7 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
         return addTransactionButton;
     }
 
-    private void waitForTransactionDetailActivity(Instrumentation.ActivityMonitor activityMonitor) {
+    protected void waitForTransactionDetailActivity(Instrumentation.ActivityMonitor activityMonitor) {
         TransactionDetailActivity nextActivity = (TransactionDetailActivity) getInstrumentation().waitForMonitorWithTimeout(activityMonitor, 5000);
 
         assertNotNull(nextActivity);
