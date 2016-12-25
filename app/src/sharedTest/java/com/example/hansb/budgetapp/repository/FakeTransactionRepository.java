@@ -43,6 +43,10 @@ public class FakeTransactionRepository implements TransactionRepository {
         transactions.add(transactionFactory.create(type, description, value));
     }
 
+    public void whenOneDepositTransactionIsAvailable() throws Exception {
+        whenOneDepositTransactionIsAvailable("DEPOSIT", 1.00, "test description");
+    }
+
     public void whenDbUnavailable() {
         shouldThrowException = true;
     }

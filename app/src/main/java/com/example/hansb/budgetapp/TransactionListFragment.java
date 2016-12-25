@@ -2,10 +2,7 @@ package com.example.hansb.budgetapp;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.Loader;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,8 +31,7 @@ import java.util.List;
 
 public class TransactionListFragment
         extends Fragment
-        implements LoaderManager.LoaderCallbacks<Cursor>,
-        AdapterView.OnItemClickListener {
+        implements AdapterView.OnItemClickListener {
 
     private final Logger logger;
     private final TransactionInteractor transactionInteractor;
@@ -112,21 +108,6 @@ public class TransactionListFragment
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
     }
@@ -158,7 +139,7 @@ public class TransactionListFragment
             ImageView imageView = (ImageView) transactionListItemView.findViewById(R.id.icon);
 
             headerLine.setText(currentTransaction.getDescription());
-            detailLine.setText(String.format("Transaction value: %f", currentTransaction.getValue()));
+            detailLine.setText(String.format("Transaction value: %.2f", currentTransaction.getValue()));
 
             if (currentTransaction instanceof DepositTransaction)
                 imageView.setImageResource(R.drawable.deposit);
