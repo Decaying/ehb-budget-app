@@ -151,11 +151,11 @@ public class TransactionListFragment
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            View rowView = inflater.inflate(R.layout.transaction_list_item, parent, false);
+            View transactionListItemView = inflater.inflate(R.layout.transaction_list_item, parent, false);
 
-            TextView headerLine = (TextView) rowView.findViewById(R.id.headerLine);
-            TextView detailLine = (TextView) rowView.findViewById(R.id.detailLine);
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
+            TextView headerLine = (TextView) transactionListItemView.findViewById(R.id.headerLine);
+            TextView detailLine = (TextView) transactionListItemView.findViewById(R.id.detailLine);
+            ImageView imageView = (ImageView) transactionListItemView.findViewById(R.id.icon);
 
             headerLine.setText(currentTransaction.getDescription());
             detailLine.setText(String.format("Transaction value: %f", currentTransaction.getValue()));
@@ -165,7 +165,7 @@ public class TransactionListFragment
             else
                 imageView.setImageResource(R.drawable.withdrawal);
 
-            return rowView;
+            return transactionListItemView;
         }
 
     }
