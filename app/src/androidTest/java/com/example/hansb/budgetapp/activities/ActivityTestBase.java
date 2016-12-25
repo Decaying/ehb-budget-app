@@ -2,6 +2,7 @@ package com.example.hansb.budgetapp.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -27,6 +28,7 @@ public abstract class ActivityTestBase<T extends Activity> extends Instrumentati
     @Override
     public T getSut() {
         activityRule = new ActivityTestRule<>(activityType, true, false);
+        this.injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
         activityRule.launchActivity(new Intent());
 

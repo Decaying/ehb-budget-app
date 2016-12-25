@@ -2,42 +2,26 @@ package com.example.hansb.budgetapp.activities;
 
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import com.example.hansb.budgetapp.MainActivity;
-import com.example.hansb.budgetapp.R;
-import com.example.hansb.budgetapp.TestAppInjector;
-import com.example.hansb.budgetapp.repository.FakeTransactionRepository;
 
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 
-public class MainActivityTests extends ActivityTestBase<MainActivity> {
-    private FakeTransactionRepository fakeTransactionRepository;
-
-    public MainActivityTests() {
-        super(MainActivity.class);
-        TestAppInjector testAppInjector = new TestAppInjector();
-        MainActivity.Injector = testAppInjector;
-        fakeTransactionRepository = new FakeTransactionRepository(testAppInjector);
-        testAppInjector.setTransactionRepository(fakeTransactionRepository);
-    }
+public class MainActivityTests extends MainActivityTestBase {
 
     @Test
     public void testThatRepositoryGetsCalledWhenLoaded() throws Exception {
-        fakeTransactionRepository.whenOneDepositTransactionIsAvailable();
+        FakeTransactionRepository.whenOneDepositTransactionIsAvailable();
 
         getSut();
 
-        assertTrue(fakeTransactionRepository.getAllTransactionsHasBeenCalled());
+        assertTrue(FakeTransactionRepository.getAllTransactionsHasBeenCalled());
     }
 
     @Test
     public void testThatListViewIsPopulated() throws Exception {
-        fakeTransactionRepository.whenOneDepositTransactionIsAvailable();
+        FakeTransactionRepository.whenOneDepositTransactionIsAvailable();
 
         MainActivity activity = getSut();
 
@@ -48,32 +32,21 @@ public class MainActivityTests extends ActivityTestBase<MainActivity> {
 
     @Test
     public void testThatListViewContainsDetails() throws Exception {
-        fakeTransactionRepository.whenOneDepositTransactionIsAvailable("DEPOSIT", 123.7458, "Purchased an instrumentation test");
+        String transactionDescription = "Purchased an instrumentation test";
+        FakeTransactionRepository.whenOneDepositTransactionIsAvailable("DEPOSIT", 123.7458, transactionDescription);
 
         MainActivity activity = getSut();
 
         View transactionView = getTransactionItemView(activity, 0);
 
-        TextView headerLine = (TextView) transactionView.findViewById(R.id.headerLine);
-        TextView detailLine = (TextView) transactionView.findViewById(R.id.detailLine);
-
-        assertThat(headerLine.getText().toString(), is("Purchased an instrumentation test"));
-        assertThat(detailLine.getText().toString(), is("Transaction value: 123.75"));
+        assertThat(getHeaderLine(transactionView).getText().toString(), is(transactionDescription));
+        assertThat(getDetailLine(transactionView).getText().toString(), is("Transaction value: 123.75"));
     }
 
-    private View getTransactionItemView(MainActivity activity, int position) {
-        View transactionView = getTransactionListView(activity).getChildAt(position);
+    @Test
+    public void testThatTransactionDetailActivityCanBeCalled() throws Exception {
+        MainActivity activity = getSut();
 
-        assertThat(transactionView, is(notNullValue()));
-
-        return transactionView;
-    }
-
-    private ListView getTransactionListView(MainActivity activity) {
-        ListView listview = (ListView) activity.findViewById(R.id.transactionlistview);
-
-        assertThat(listview, is(notNullValue()));
-
-        return listview;
+        callAndWaitForTransactionDetailActivity(activity);
     }
 }

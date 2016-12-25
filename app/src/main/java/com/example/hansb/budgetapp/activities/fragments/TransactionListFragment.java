@@ -1,20 +1,24 @@
-package com.example.hansb.budgetapp;
+package com.example.hansb.budgetapp.activities.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.hansb.budgetapp.AppInjector;
+import com.example.hansb.budgetapp.R;
+import com.example.hansb.budgetapp.activities.TransactionDetailActivity;
 import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
@@ -31,7 +35,7 @@ import java.util.List;
 
 public class TransactionListFragment
         extends Fragment
-        implements AdapterView.OnItemClickListener {
+        implements FloatingActionButton.OnClickListener {
 
     private final Logger logger;
     private final TransactionInteractor transactionInteractor;
@@ -49,12 +53,39 @@ public class TransactionListFragment
         this.transactionInteractor = injector.getTransactionInteractor();
     }
 
-    private Logger getLogger() {
-        return logger;
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        logger.debug("Creating transaction list fragment view");
+        return inflater.inflate(R.layout.transaction_list_fragment,
+                container, false);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        logger.debug("transaction list fragment view has been created");
+        super.onActivityCreated(savedInstanceState);
+
+        logger.debug("Setting transaction adapter");
+        ListView transactionsView = findListView();
+        transactionsView.setAdapter(getTransactionAdapter());
+
+        FloatingActionButton addTransactionButton = getAddTransactionButtonView();
+        addTransactionButton.setOnClickListener(this);
+
+        loadTransactions();
+    }
+
+    private ListView findListView() {
+        return (ListView) getActivity().findViewById(R.id.transactionlist);
+    }
+
+    private FloatingActionButton getAddTransactionButtonView() {
+        return (FloatingActionButton) getActivity().findViewById(R.id.add_transaction);
     }
 
     private void loadTransactions() {
-        getLogger().debug("Loading transactions");
+        logger.debug("Loading transactions");
         transactionInteractor.run(transactionInteractorCallback());
     }
 
@@ -69,31 +100,12 @@ public class TransactionListFragment
     }
 
     private void displayTransactions(List<Transaction> transactions) {
-        getLogger().debug("Transactions loaded, displaying now");
+        logger.debug("Transactions loaded, displaying now");
         findListView().setAdapter(getTransactionAdapter(transactions));
     }
 
-    private ListView findListView() {
-        return (ListView) getActivity().findViewById(R.id.transactionlistview);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getLogger().debug("Creating transaction list fragment view");
-        return inflater.inflate(R.layout.transaction_list_fragment,
-                container, false);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        getLogger().debug("transaction list fragment view has been created");
-        super.onActivityCreated(savedInstanceState);
-
-        getLogger().debug("Setting transaction adapter");
-        findListView().setAdapter(getTransactionAdapter());
-
-        loadTransactions();
+    private TransactionAdapter getTransactionAdapter() {
+        return getTransactionAdapter(new ArrayList<Transaction>());
     }
 
     private TransactionAdapter getTransactionAdapter(List<Transaction> transactions) {
@@ -103,13 +115,16 @@ public class TransactionListFragment
                 transactions);
     }
 
-    private TransactionAdapter getTransactionAdapter() {
-        return getTransactionAdapter(new ArrayList<Transaction>());
+    @Override
+    public void onClick(View v) {
+        createNewTransaction();
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+    private void createNewTransaction() {
+        logger.info("Creating a new transaction");
+        Intent createTransaction = new Intent(getActivity(), TransactionDetailActivity.class);
+        createTransaction.putExtra("mode", TransactionDetailActivity.Mode.Create);
+        startActivity(createTransaction);
     }
 
     private class TransactionAdapter extends ArrayAdapter<Transaction> {
@@ -148,6 +163,5 @@ public class TransactionListFragment
 
             return transactionListItemView;
         }
-
     }
 }

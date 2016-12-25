@@ -1,8 +1,13 @@
-package com.example.hansb.budgetapp;
+package com.example.hansb.budgetapp.activities;
 
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import com.example.hansb.budgetapp.AppInjector;
+import com.example.hansb.budgetapp.AppInjectorImpl;
+import com.example.hansb.budgetapp.R;
+import com.example.hansb.budgetapp.activities.fragments.TransactionListFragment;
 
 import org.apache.logging.log4j.Logger;
 
