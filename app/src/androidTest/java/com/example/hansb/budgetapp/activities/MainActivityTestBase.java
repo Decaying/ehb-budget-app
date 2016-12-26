@@ -1,7 +1,5 @@
 package com.example.hansb.budgetapp.activities;
 
-import android.app.Instrumentation;
-import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -46,24 +44,8 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
         return transactionView;
     }
 
-    protected Instrumentation.ActivityMonitor setupActivityMonitor() {
-        return getInstrumentation().addMonitor(TransactionDetailActivity.class.getName(), null, false);
-    }
-
-    protected void clickAddTransactionButton(MainActivity activity) {
-        clickView(getAddTransactionButton(activity));
-    }
-
-    private FloatingActionButton getAddTransactionButton(MainActivity activity) {
-        return getView(activity, R.id.add_transaction);
-    }
-
-    protected void waitForTransactionDetailActivity(Instrumentation.ActivityMonitor activityMonitor) {
-        TransactionDetailActivity nextActivity = (TransactionDetailActivity) getInstrumentation().waitForMonitorWithTimeout(activityMonitor, 5000);
-
-        assertNotNull(nextActivity);
-
-        nextActivity.finish();
+    protected void clickAddTransactionButton() {
+        clickView(R.id.add_transaction);
     }
 
     protected TextView getDetailLine(View transactionView) {

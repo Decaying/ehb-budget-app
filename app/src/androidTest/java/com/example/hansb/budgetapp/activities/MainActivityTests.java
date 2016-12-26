@@ -44,11 +44,26 @@ public class MainActivityTests extends MainActivityTestBase {
 
     @Test
     public void testThatTransactionDetailActivityCanBeCalled() throws Exception {
-        MainActivity activity = getSut();
-        Instrumentation.ActivityMonitor activityMonitor = setupActivityMonitor();
+        getSut();
+        Instrumentation.ActivityMonitor activityMonitor = setupActivityMonitor(TransactionDetailActivity.class);
 
-        clickAddTransactionButton(activity);
+        clickAddTransactionButton();
 
-        waitForTransactionDetailActivity(activityMonitor);
+        waitForActivity(activityMonitor);
+    }
+
+    @Test
+    public void testThatUpNavigationGoesBackToMainActivity() {
+        getSut();
+        Instrumentation.ActivityMonitor transactionDetailActivityMonitor = setupActivityMonitor(TransactionDetailActivity.class);
+        Instrumentation.ActivityMonitor mainActivityMonitor = setupActivityMonitor(MainActivity.class);
+
+        clickAddTransactionButton();
+
+        TransactionDetailActivity transactionDetailActivity = waitForActivity(transactionDetailActivityMonitor);
+
+        clickUpNavigation(transactionDetailActivity);
+
+        waitForActivity(mainActivityMonitor);
     }
 }
