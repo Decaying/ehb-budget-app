@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,8 @@ import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
+import com.google.common.base.Strings;
+import com.google.common.primitives.Doubles;
 
 import org.apache.logging.log4j.Logger;
 
@@ -70,12 +73,42 @@ public class CreateTransactionFragment
         String description = getDescription();
         Double value = getValue();
 
+        if (!validateTransaction(description, value))
+            return;
+
         try {
             Transaction deposit = transactionFactory.createDeposit(description, value);
+
+            logger.info(String.format("Saving transaction '%s'", description));
             transactionRepository.createTransaction(deposit);
+            logger.info(String.format("Saving transaction '%s' success", description));
         } catch (Exception ex) {
             logger.error("Failed to create transaction");
         }
+
+        navigateToParent();
+    }
+
+    private boolean validateTransaction(String description, Double value) {
+        boolean hasError = false;
+
+        if (Strings.isNullOrEmpty(description)) {
+            EditText descriptionView = getTransactionDescriptionView();
+            descriptionView.setError(getString(R.string.transaction_description_error));
+            hasError = true;
+        }
+        if (value <= 0) {
+            EditText valueView = getTransactionValueView();
+            valueView.setError(getString(R.string.transaction_value_error));
+            hasError = true;
+        }
+
+        return !hasError;
+    }
+
+    private void navigateToParent() {
+        logger.debug("navigating to parent activity");
+        startActivity(NavUtils.getParentActivityIntent(getActivity()));
     }
 
     public String getDescription() {
@@ -89,7 +122,9 @@ public class CreateTransactionFragment
     public Double getValue() {
         String text = getTransactionValueView().getText().toString();
 
-        return Double.parseDouble(text);
+        Double value = Doubles.tryParse(text);
+
+        return value != null ? value : 0D;
     }
 
     private EditText getTransactionValueView() {

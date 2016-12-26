@@ -50,5 +50,7 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.7'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.7'
 
+    compile group: 'com.google.guava', name: 'guava', version: '18.0'
+
     compile "com.wu-man:android-bsf-api:3.1.3"
 }
