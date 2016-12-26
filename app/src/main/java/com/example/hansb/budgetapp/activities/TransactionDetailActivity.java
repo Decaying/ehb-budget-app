@@ -16,6 +16,8 @@ import com.example.hansb.budgetapp.activities.fragments.CreateTransactionFragmen
 
 public class TransactionDetailActivity extends AppCompatActivity {
 
+    public static AppInjector Injector;
+
     public enum Mode {
         Create
     }
@@ -25,16 +27,18 @@ public class TransactionDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        if (Injector == null)
+            Injector = MainActivity.Injector;
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle parameters = getIntent().getExtras();
-
 
         if (savedInstanceState == null) {
             Mode mode = (Mode) parameters.get("mode");
 
             //TODO: find better way for passing Dependency Injection container
-            Fragment fragment = getTransactionDetailFragment(MainActivity.Injector, mode);
+            Fragment fragment = getTransactionDetailFragment(Injector, mode);
 
             getFragmentManager()
                     .beginTransaction()

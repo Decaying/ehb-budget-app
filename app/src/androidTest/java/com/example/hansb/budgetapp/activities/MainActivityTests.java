@@ -44,8 +44,8 @@ public class MainActivityTests extends MainActivityTestBase {
 
     @Test
     public void testThatTransactionDetailActivityCanBeCalled() throws Exception {
-        Instrumentation.ActivityMonitor activityMonitor = setupActivityMonitor();
         MainActivity activity = getSut();
+        Instrumentation.ActivityMonitor activityMonitor = setupActivityMonitor();
 
         clickAddTransactionButton(activity);
 

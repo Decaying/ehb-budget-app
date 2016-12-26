@@ -2,7 +2,6 @@ package com.example.hansb.budgetapp.activities;
 
 import android.app.Instrumentation;
 import android.support.design.widget.FloatingActionButton;
-import android.test.TouchUtils;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,11 +35,7 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
     }
 
     protected ListView getTransactionListView(MainActivity activity) {
-        ListView listview = (ListView) activity.findViewById(R.id.transactionlist);
-
-        assertThat(listview, is(notNullValue()));
-
-        return listview;
+        return getView(activity, R.id.transactionlist);
     }
 
     protected View getTransactionItemView(MainActivity activity, int position) {
@@ -56,15 +51,11 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
     }
 
     protected void clickAddTransactionButton(MainActivity activity) {
-        TouchUtils.clickView(this, getAddTransactionButton(activity));
+        clickView(getAddTransactionButton(activity));
     }
 
     private FloatingActionButton getAddTransactionButton(MainActivity activity) {
-        FloatingActionButton addTransactionButton = (FloatingActionButton) activity.findViewById(R.id.add_transaction);
-
-        assertThat(addTransactionButton, is(notNullValue()));
-
-        return addTransactionButton;
+        return getView(activity, R.id.add_transaction);
     }
 
     protected void waitForTransactionDetailActivity(Instrumentation.ActivityMonitor activityMonitor) {

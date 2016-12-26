@@ -20,6 +20,7 @@ public class FakeTransactionRepository implements TransactionRepository {
     private List<Transaction> transactions = new ArrayList<>();
     private boolean shouldThrowException = false;
     private boolean getAllTransactionsHasBeenCalled = false;
+    private boolean aNewTransactionHasBeenCreated = false;
 
     public FakeTransactionRepository(AppInjector injector) {
         this.transactionFactory = injector.getTransactionFactory();
@@ -38,6 +39,11 @@ public class FakeTransactionRepository implements TransactionRepository {
         return transactions.toArray(array);
     }
 
+    @Override
+    public void createTransaction(Transaction transaction) {
+        aNewTransactionHasBeenCreated = true;
+    }
+
     public void whenOneDepositTransactionIsAvailable(String type, double value, String description) throws Exception {
         logger.debug(String.format("One %s should be available", type));
         transactions.add(transactionFactory.create(type, description, value));
@@ -53,5 +59,9 @@ public class FakeTransactionRepository implements TransactionRepository {
 
     public boolean getAllTransactionsHasBeenCalled() {
         return getAllTransactionsHasBeenCalled;
+    }
+
+    public boolean hasANewTransactionHasBeenCreated() {
+        return aNewTransactionHasBeenCreated;
     }
 }

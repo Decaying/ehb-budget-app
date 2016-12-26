@@ -5,4 +5,6 @@ package com.example.hansb.budgetapp.business;
  */
 public interface TransactionFactory {
     Transaction create(String type, String description, double value) throws Exception;
+
+    Transaction createDeposit(String description, Double value) throws Exception;
 }

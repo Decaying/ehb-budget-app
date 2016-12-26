@@ -1,5 +1,6 @@
 package com.example.hansb.budgetapp.budgetapp.sqlite;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -7,6 +8,7 @@ import android.support.annotation.NonNull;
 
 import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
+import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
 
@@ -17,7 +19,6 @@ import org.apache.logging.log4j.Logger;
  */
 
 public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements TransactionRepository {
-
     private TransactionFactory transactionFactory;
     private Logger logger;
 
@@ -34,11 +35,11 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         private static final String VALUE_TYPE = "REAL";
 
         private static final String TYPE = "type";
-        private static final String TYPE_TYPE = "TEXT";
+        private static final String TYPE_TYPE = "TEXT NOT NULL";
     }
 
     private static final String DATABASE_NAME = "budgetapp.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private String[] projection = {
             TransactionEntry.ID,
@@ -54,6 +55,30 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
     }
 
     @Override
+    public void onCreate(SQLiteDatabase db) {
+        logger.debug("Create transaction table");
+        String CREATE_TRANSACTIONS_TABLE =
+                "CREATE TABLE " + TransactionEntry.TABLE_NAME +
+                        "(" +
+                        TransactionEntry.ID + " " + TransactionEntry.ID_TYPE + "," +
+                        TransactionEntry.DESCRIPTION + " " + TransactionEntry.DESCRIPTION_TYPE + "," +
+                        TransactionEntry.TYPE + " " + TransactionEntry.TYPE_TYPE + "," +
+                        TransactionEntry.VALUE + " " + TransactionEntry.VALUE_TYPE +
+                        ")";
+
+        db.execSQL(CREATE_TRANSACTIONS_TABLE);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        logger.debug("Re-create database");
+
+        logger.debug("Drop transaction table");
+        db.execSQL("DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME);
+        onCreate(db);
+    }
+
+    @Override
     public Transaction[] getAllTransactions() throws Exception {
         logger.debug("Initialize database access");
         SQLiteDatabase db = getReadableDatabase();
@@ -62,6 +87,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         try {
             logger.debug("Loading transactions from database");
             transactions = queryDatabaseForTransactions(db);
+            logger.debug("Loading transactions from database completed");
         } finally {
             db.close();
         }
@@ -122,26 +148,28 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        logger.debug("Create transaction table");
-        String CREATE_TRANSACTIONS_TABLE =
-                "CREATE TABLE " + TransactionEntry.TABLE_NAME +
-                        "(" +
-                        TransactionEntry.ID + " " + TransactionEntry.ID_TYPE + "," +
-                        TransactionEntry.DESCRIPTION + " " + TransactionEntry.DESCRIPTION_TYPE + "," +
-                        TransactionEntry.TYPE + " " + TransactionEntry.TYPE_TYPE + "," +
-                        TransactionEntry.VALUE + " " + TransactionEntry.VALUE_TYPE +
-                        ")";
+    public void createTransaction(Transaction transaction) {
+        logger.debug("Initialize database access");
+        SQLiteDatabase db = getWritableDatabase();
 
-        db.execSQL(CREATE_TRANSACTIONS_TABLE);
+        try {
+            logger.debug("Writing transaction to database");
+            insertTransaction(db, transaction);
+            logger.debug("Writing transaction to database completed");
+        } finally {
+            db.close();
+        }
     }
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        logger.debug("Re-create database");
+    private void insertTransaction(SQLiteDatabase db, Transaction transaction) {
+        ContentValues values = new ContentValues();
 
-        logger.debug("Drop transaction table");
-        db.execSQL("DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME);
-        onCreate(db);
+        values.put(TransactionEntry.DESCRIPTION, transaction.getDescription());
+        values.put(TransactionEntry.VALUE, transaction.getValue());
+
+        if (transaction instanceof DepositTransaction)
+            values.put(TransactionEntry.TYPE, "DEPOSIT");
+
+        db.insertOrThrow(TransactionEntry.TABLE_NAME, null, values);
     }
 }

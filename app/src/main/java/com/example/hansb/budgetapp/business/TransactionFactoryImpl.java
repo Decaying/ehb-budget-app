@@ -20,4 +20,9 @@ public class TransactionFactoryImpl implements TransactionFactory {
 
         return transaction;
     }
+
+    @Override
+    public Transaction createDeposit(String description, Double value) throws Exception {
+        return create("DEPOSIT", description, value);
+    }
 }
