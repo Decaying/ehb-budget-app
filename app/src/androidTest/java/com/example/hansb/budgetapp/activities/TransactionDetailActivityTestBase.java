@@ -1,6 +1,7 @@
 package com.example.hansb.budgetapp.activities;
 
 import android.content.Intent;
+import android.widget.EditText;
 
 import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.TestAppInjector;
@@ -35,8 +36,20 @@ public class TransactionDetailActivityTestBase extends ActivityTestBase<Transact
     }
 
     protected void setTransactionDetails(String description, Double value) {
-        typeInView(R.id.transaction_description, description);
+        setTransactionDescription(description);
+        setTransactionValue(value);
+    }
+
+    protected void setTransactionValue(Double value) {
         typeInView(R.id.transaction_value, value.toString());
+    }
+
+    protected void setTransactionDescription(String description) {
+        typeInView(R.id.transaction_description, description);
+    }
+
+    protected Double getTransactionValue(TransactionDetailActivity activity) {
+        return Double.parseDouble(((EditText) getView(activity, R.id.transaction_value)).getText().toString());
     }
 
     protected void clickSaveTransaction() {

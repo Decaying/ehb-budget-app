@@ -59,9 +59,7 @@ public class MainActivityTests extends MainActivityTestBase {
         Instrumentation.ActivityMonitor mainActivityMonitor = setupActivityMonitor(MainActivity.class);
 
         clickAddTransactionButton();
-
         TransactionDetailActivity transactionDetailActivity = waitForActivity(transactionDetailActivityMonitor);
-
         clickUpNavigation(transactionDetailActivity);
 
         waitForActivity(mainActivityMonitor);

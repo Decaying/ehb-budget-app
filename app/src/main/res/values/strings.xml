@@ -2,5 +2,7 @@
     <string name="app_name">Budget</string>
     <string name="title_transaction_list">Transactions</string>
     <string name="transaction_description">Description...</string>
+    <string name="transaction_description_error">Description is required</string>
     <string name="transaction_value">Value...</string>
+    <string name="transaction_value_error">Value is required</string>
 </resources>
