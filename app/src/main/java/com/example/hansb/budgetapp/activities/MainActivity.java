@@ -38,8 +38,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (savedInstanceState == null) {
-            logger.debug("Display transactions");
-            loadTransactionList();
+            displayTransactionList();
         }
     }
 
@@ -50,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
         getDefaultUncaughtExceptionHandler().uncaughtException(thread, ex);
     }
 
-    private void loadTransactionList() {
+    private void displayTransactionList() {
+        logger.debug("Display transactions");
         Fragment transactionListFragment = new TransactionListFragment(Injector);
 
         getFragmentManager()
