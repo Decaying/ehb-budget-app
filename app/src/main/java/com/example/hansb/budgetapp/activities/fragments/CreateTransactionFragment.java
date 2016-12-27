@@ -18,7 +18,9 @@ import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
+import com.example.hansb.budgetapp.services.BudgetJobService;
 import com.example.hansb.budgetapp.services.TimeService;
+import com.example.hansb.budgetapp.services.jobs.DetermineTransactionConversionRateJob;
 import com.google.common.base.Strings;
 import com.google.common.primitives.Doubles;
 
@@ -36,6 +38,7 @@ public class CreateTransactionFragment
     private final Logger logger;
     private final TransactionRepository transactionRepository;
     private final TimeService timeService;
+    private final BudgetJobService jobService;
     private TransactionFactory transactionFactory;
 
     public CreateTransactionFragment() {
@@ -52,6 +55,7 @@ public class CreateTransactionFragment
         this.transactionRepository = injector.getTransactionRepository();
         this.transactionFactory = injector.getTransactionFactory();
         this.timeService = injector.getTimeService();
+        this.jobService = injector.getJobService();
     }
 
     @Nullable
@@ -92,9 +96,13 @@ public class CreateTransactionFragment
 
         if (transaction != null) {
             logger.info(String.format("Saving transaction '%s'", description));
-            transactionRepository.saveTransaction(transaction);
+            Transaction newTransaction = transactionRepository.saveTransaction(transaction);
 
-            navigateToParent();
+            if (newTransaction != null) {
+                jobService.enqueueJob(new DetermineTransactionConversionRateJob(newTransaction));
+
+                navigateToParent();
+            }
         }
     }
 

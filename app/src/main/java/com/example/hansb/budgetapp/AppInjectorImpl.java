@@ -8,6 +8,9 @@ import com.example.hansb.budgetapp.business.TransactionFactory;
 import com.example.hansb.budgetapp.business.TransactionFactoryImpl;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
 import com.example.hansb.budgetapp.interactor.TransactionInteractorImpl;
+import com.example.hansb.budgetapp.services.BudgetJobService;
+import com.example.hansb.budgetapp.services.BudgetJobServiceImpl;
+import com.example.hansb.budgetapp.services.JobManagerConfigurator;
 import com.example.hansb.budgetapp.services.TimeService;
 import com.example.hansb.budgetapp.services.TimeServiceImpl;
 
@@ -21,6 +24,7 @@ import org.apache.logging.log4j.core.config.ConfigurationFactory;
 public class AppInjectorImpl implements AppInjector {
 
     private Context context;
+    private BudgetJobService budgetJobService;
 
     public AppInjectorImpl(Context context) {
         this.context = context;
@@ -56,5 +60,17 @@ public class AppInjectorImpl implements AppInjector {
     @Override
     public TimeService getTimeService() {
         return new TimeServiceImpl();
+    }
+
+    @Override
+    public BudgetJobService getJobService() {
+        if (budgetJobService == null)
+            budgetJobService = new BudgetJobServiceImpl();
+        return budgetJobService;
+    }
+
+    @Override
+    public JobManagerConfigurator getJobManagerConfigurator() {
+        return new JobManagerConfigurator(this);
     }
 }

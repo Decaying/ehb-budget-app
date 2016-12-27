@@ -131,6 +131,29 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         return transactions;
     }
 
+    private Transaction queryDatabaseForTransaction(SQLiteDatabase db, long id) throws Exception {
+        Cursor cursor = null;
+        Transaction transaction = null;
+
+        try {
+            cursor = db.query(TransactionEntry.TABLE_NAME,
+                    projection,
+                    TransactionEntry.ID + "=" + id,
+                    null,
+                    null,
+                    null,
+                    null);
+
+            transaction = readTransactionFrom(cursor);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return transaction;
+    }
+
     @NonNull
     private Transaction[] readTransactionsFrom(Cursor cursor) throws Exception {
         Transaction[] transactions;
@@ -152,6 +175,17 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         return transactions;
     }
 
+    @NonNull
+    private Transaction readTransactionFrom(Cursor cursor) throws Exception {
+        Transaction transaction = null;
+
+        if (cursor.moveToFirst()) {
+            transaction = createTransactionFrom(cursor);
+        }
+
+        return transaction;
+    }
+
     private Transaction createTransactionFrom(Cursor cursor) throws Exception {
         Long id = cursor.getLong(cursor.getColumnIndex(TransactionEntry.ID));
         String type = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.TYPE));
@@ -165,20 +199,27 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
     }
 
     @Override
-    public void saveTransaction(Transaction transaction) {
+    public Transaction saveTransaction(Transaction transaction) {
         logger.debug("Initialize database access");
         SQLiteDatabase db = getWritableDatabase();
 
+        long transactionId;
+
         try {
             logger.debug("Writing transaction to database");
-            insertTransaction(db, transaction);
+            transactionId = insertTransaction(db, transaction);
             logger.debug("Writing transaction to database completed");
+
+            return queryDatabaseForTransaction(db, transactionId);
+        } catch (Exception e) {
+            logger.error("Unable to write to database", e);
         } finally {
             db.close();
         }
+        return null;
     }
 
-    private void insertTransaction(SQLiteDatabase db, Transaction transaction) {
+    private long insertTransaction(SQLiteDatabase db, Transaction transaction) {
         ContentValues values = new ContentValues();
 
         values.put(TransactionEntry.DESCRIPTION, transaction.getDescription());
@@ -191,6 +232,6 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         if (transaction instanceof WithdrawTransaction)
             values.put(TransactionEntry.TYPE, transactionFactory.getSqlTypeWithdraw());
 
-        db.insertOrThrow(TransactionEntry.TABLE_NAME, null, values);
+        return db.insertOrThrow(TransactionEntry.TABLE_NAME, null, values);
     }
 }

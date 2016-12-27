@@ -45,9 +45,10 @@ public class FakeTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public void saveTransaction(Transaction transaction) {
+    public Transaction saveTransaction(Transaction transaction) {
         aNewTransactionHasBeenCreated = true;
         newlyCreatedTransaction = transaction;
+        return newlyCreatedTransaction;
     }
 
     public void whenOneDepositTransactionIsAvailable(double value, String description, String currency) throws Exception {

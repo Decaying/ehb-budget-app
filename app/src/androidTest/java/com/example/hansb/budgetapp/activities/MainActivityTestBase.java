@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.hansb.budgetapp.FakeTimeService;
 import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.TestAppInjector;
 import com.example.hansb.budgetapp.repository.FakeTransactionRepository;
@@ -17,6 +18,7 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
     protected FakeTransactionRepository fakeTransactionRepository;
+    protected FakeTimeService fakeTimeService;
 
     public MainActivityTestBase() {
         super(MainActivity.class);
@@ -27,6 +29,9 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
         super.configureContainer(injector);
 
         MainActivity.Injector = injector;
+
+        fakeTimeService = new FakeTimeService();
+        injector.setTimeService(fakeTimeService);
 
         fakeTransactionRepository = new FakeTransactionRepository(injector);
         injector.setTransactionRepository(fakeTransactionRepository);

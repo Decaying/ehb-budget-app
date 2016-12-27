@@ -3,6 +3,7 @@ package com.example.hansb.budgetapp;
 import android.content.Context;
 
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
+import com.example.hansb.budgetapp.services.BudgetJobService;
 import com.example.hansb.budgetapp.services.TimeService;
 
 /**
@@ -11,6 +12,7 @@ import com.example.hansb.budgetapp.services.TimeService;
 public class TestAppInjector extends AppInjectorImpl {
     private TransactionRepository transactionRepository;
     private TimeService timeService;
+    private BudgetJobService jobService;
 
     public TestAppInjector() {
         super(null);
@@ -37,5 +39,14 @@ public class TestAppInjector extends AppInjectorImpl {
     @Override
     public TimeService getTimeService() {
         return timeService;
+    }
+
+    public void setJobService(BudgetJobService jobService) {
+        this.jobService = jobService;
+    }
+
+    @Override
+    public BudgetJobService getJobService() {
+        return jobService;
     }
 }
