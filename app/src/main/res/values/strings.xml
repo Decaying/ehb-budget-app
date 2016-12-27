@@ -7,4 +7,10 @@
     <string name="transaction_value_error">Value is required</string>
     <string name="deposit_description">Deposit</string>
     <string name="withdraw_description">Withdraw</string>
+    <string name="select_transaction_currency_prompt">Select currency</string>
+    <string name="transaction_select_currency_label">Currency</string>
+    <string-array name="currency_arrays">
+        <item>EUR</item>
+        <item>USD</item>
+    </string-array>
 </resources>
