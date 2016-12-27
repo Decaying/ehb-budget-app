@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 
 import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.R;
@@ -72,35 +73,90 @@ public class CreateTransactionFragment
     public void onClick(View v) {
         String description = getDescription();
         Double value = getValue();
+        TransactionFactory.TransactionType type = tryGetTransactionType();
 
-        if (!validateTransaction(description, value))
+        if (!validateTransaction(description, value)) {
+            logger.debug("validation of transaction values failed");
             return;
-
-        try {
-            Transaction deposit = transactionFactory.createDeposit(description, value);
-
-            logger.info(String.format("Saving transaction '%s'", description));
-            transactionRepository.createTransaction(deposit);
-            logger.info(String.format("Saving transaction '%s' success", description));
-        } catch (Exception ex) {
-            logger.error("Failed to create transaction");
         }
 
-        navigateToParent();
+        logger.debug("validation of transaction values success");
+        Transaction transaction = tryCreateTransaction(type, description, value);
+
+        if (transaction != null) {
+            logger.info(String.format("Saving transaction '%s'", description));
+            transactionRepository.saveTransaction(transaction);
+
+            navigateToParent();
+        }
+    }
+
+    @Nullable
+    private TransactionFactory.TransactionType tryGetTransactionType() {
+        TransactionFactory.TransactionType transactionType = null;
+        try {
+            transactionType = getTransactionType();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return transactionType;
+    }
+
+    private Transaction tryCreateTransaction(TransactionFactory.TransactionType transactionType, String description, Double value) {
+
+        try {
+            return transactionFactory.create(transactionType, description, value);
+        } catch (Exception ex) {
+            logger.error("Failed to create transaction", ex);
+        }
+
+        return null;
+    }
+
+    private TransactionFactory.TransactionType getTransactionType() throws Exception {
+        TransactionFactory.TransactionType transactionType;
+
+        if (isDepositSelected())
+            transactionType = TransactionFactory.TransactionType.Deposit;
+        else if (isWithdrawSelected())
+            transactionType = TransactionFactory.TransactionType.Withdraw;
+        else
+            throw new Exception("Invalid selection");
+
+        return transactionType;
+    }
+
+    private boolean isDepositSelected() {
+        return getTypeSelectionDepositView().isChecked();
+    }
+
+    private RadioButton getTypeSelectionDepositView() {
+        return (RadioButton) getActivity().findViewById(R.id.transaction_type_deposit);
+    }
+
+    private boolean isWithdrawSelected() {
+        return getTypeSelectionWithdrawView().isChecked();
+    }
+
+    private RadioButton getTypeSelectionWithdrawView() {
+        return (RadioButton) getActivity().findViewById(R.id.transaction_type_withdraw);
     }
 
     private boolean validateTransaction(String description, Double value) {
         boolean hasError = false;
+        logger.debug("validating transaction values");
 
         if (Strings.isNullOrEmpty(description)) {
             EditText descriptionView = getTransactionDescriptionView();
             descriptionView.setError(getString(R.string.transaction_description_error));
             hasError = true;
+            logger.error(getString(R.string.transaction_description_error));
         }
         if (value <= 0) {
             EditText valueView = getTransactionValueView();
             valueView.setError(getString(R.string.transaction_value_error));
             hasError = true;
+            logger.error(getString(R.string.transaction_value_error));
         }
 
         return !hasError;

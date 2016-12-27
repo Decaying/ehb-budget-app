@@ -3,6 +3,8 @@ package com.example.hansb.budgetapp.activities;
 import android.app.Instrumentation;
 
 import com.example.hansb.budgetapp.R;
+import com.example.hansb.budgetapp.business.DepositTransaction;
+import com.example.hansb.budgetapp.business.WithdrawTransaction;
 
 import org.junit.Test;
 
@@ -11,6 +13,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasErrorText;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -26,6 +29,7 @@ public class TransactionDetailActivityTests extends TransactionDetailActivityTes
         clickSaveTransaction();
 
         assertThat(getFakeTransactionRepository().hasANewTransactionHasBeenCreated(), is(true));
+        assertThat(getFakeTransactionRepository().newlyCreatedTransaction(), instanceOf(DepositTransaction.class));
     }
 
     @Test
@@ -64,5 +68,17 @@ public class TransactionDetailActivityTests extends TransactionDetailActivityTes
         clickSaveTransaction();
 
         onView(withId(R.id.transaction_value)).check(matches(hasErrorText("Value is required")));
+    }
+
+    @Test
+    public void testThatAWithdrawTransactionCanBeCreated() {
+        getSut();
+
+        setTransactionTypeWithdraw();
+        setTransactionDetails();
+        clickSaveTransaction();
+
+        assertThat(getFakeTransactionRepository().hasANewTransactionHasBeenCreated(), is(true));
+        assertThat(getFakeTransactionRepository().newlyCreatedTransaction(), instanceOf(WithdrawTransaction.class));
     }
 }

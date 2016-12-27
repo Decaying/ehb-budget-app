@@ -64,4 +64,7 @@ public class TransactionDetailActivityTestBase extends ActivityTestBase<Transact
         clickView(R.id.save_transaction);
     }
 
+    protected void setTransactionTypeWithdraw() {
+        clickView(R.id.transaction_type_withdraw);
+    }
 }

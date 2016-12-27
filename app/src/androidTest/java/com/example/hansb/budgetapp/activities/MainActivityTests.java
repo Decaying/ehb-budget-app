@@ -31,7 +31,7 @@ public class MainActivityTests extends MainActivityTestBase {
     @Test
     public void testThatListViewContainsDetails() throws Exception {
         String transactionDescription = "Purchased an instrumentation test";
-        getFakeTransactionRepository().whenOneDepositTransactionIsAvailable("DEPOSIT", 123.7458, transactionDescription);
+        getFakeTransactionRepository().whenOneDepositTransactionIsAvailable(123.7458, transactionDescription);
         MainActivity activity = getSut();
 
         View transactionView = getTransactionItemView(activity, 0);

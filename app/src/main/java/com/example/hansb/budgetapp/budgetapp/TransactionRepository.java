@@ -9,5 +9,5 @@ import com.example.hansb.budgetapp.business.Transaction;
 public interface TransactionRepository {
     Transaction[] getAllTransactions() throws Exception;
 
-    void createTransaction(Transaction transaction);
+    void saveTransaction(Transaction transaction);
 }
