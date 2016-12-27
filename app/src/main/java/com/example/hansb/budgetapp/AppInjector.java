@@ -5,6 +5,7 @@ import android.content.Context;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.TransactionFactory;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
+import com.example.hansb.budgetapp.services.TimeService;
 
 import org.apache.logging.log4j.Logger;
 
@@ -21,4 +22,6 @@ public interface AppInjector {
     TransactionFactory getTransactionFactory();
 
     Context getContext();
+
+    TimeService getTimeService();
 }

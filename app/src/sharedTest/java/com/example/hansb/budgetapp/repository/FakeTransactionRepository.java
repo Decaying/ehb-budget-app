@@ -4,10 +4,12 @@ import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
+import com.example.hansb.budgetapp.services.TimeService;
 
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,6 +18,7 @@ import java.util.List;
 public class FakeTransactionRepository implements TransactionRepository {
     private final TransactionFactory transactionFactory;
     private final Logger logger;
+    private final TimeService timeService;
 
     private List<Transaction> transactions = new ArrayList<>();
     private boolean shouldThrowException = false;
@@ -26,6 +29,7 @@ public class FakeTransactionRepository implements TransactionRepository {
     public FakeTransactionRepository(AppInjector injector) {
         this.transactionFactory = injector.getTransactionFactory();
         this.logger = injector.getLogger(FakeTransactionRepository.class);
+        this.timeService = injector.getTimeService();
     }
 
     @Override
@@ -47,8 +51,11 @@ public class FakeTransactionRepository implements TransactionRepository {
     }
 
     public void whenOneDepositTransactionIsAvailable(double value, String description, String currency) throws Exception {
+        Date now = timeService.now();
+
         logger.debug(String.format("One deposit should be available"));
-        transactions.add(transactionFactory.create(TransactionFactory.TransactionType.Deposit, description, value, currency));
+
+        transactions.add(transactionFactory.create(TransactionFactory.TransactionType.Deposit, description, value, currency, now));
     }
 
     public void whenOneDepositTransactionIsAvailable() throws Exception {

@@ -15,6 +15,8 @@ import com.example.hansb.budgetapp.business.WithdrawTransaction;
 
 import org.apache.logging.log4j.Logger;
 
+import java.util.Date;
+
 /**
  * Created by HansB on 12/12/2016.
  */
@@ -40,17 +42,21 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
         private static final String CURRENCY = "CURRENCY";
         private static final String CURRENCY_TYPE = "TEXT NOT NULL";
+
+        private static final String CREATED_AT = "CREATEDAT";
+        private static final String CREATED_AT_TYPE = "INTEGER";
     }
 
     private static final String DATABASE_NAME = "budgetapp.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     private String[] projection = {
             TransactionEntry.ID,
             TransactionEntry.DESCRIPTION,
             TransactionEntry.VALUE,
             TransactionEntry.TYPE,
-            TransactionEntry.CURRENCY
+            TransactionEntry.CURRENCY,
+            TransactionEntry.CREATED_AT
     };
 
     public SqlLiteTransactionRepository(AppInjector injector) {
@@ -68,8 +74,9 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
                         TransactionEntry.ID + " " + TransactionEntry.ID_TYPE + "," +
                         TransactionEntry.DESCRIPTION + " " + TransactionEntry.DESCRIPTION_TYPE + "," +
                         TransactionEntry.TYPE + " " + TransactionEntry.TYPE_TYPE + "," +
-                        TransactionEntry.VALUE + " " + TransactionEntry.VALUE_TYPE +
-                        TransactionEntry.CURRENCY + " " + TransactionEntry.CURRENCY_TYPE +
+                        TransactionEntry.VALUE + " " + TransactionEntry.VALUE_TYPE + "," +
+                        TransactionEntry.CURRENCY + " " + TransactionEntry.CURRENCY_TYPE + "," +
+                        TransactionEntry.CREATED_AT + " " + TransactionEntry.CREATED_AT_TYPE +
                         ")";
 
         db.execSQL(CREATE_TRANSACTIONS_TABLE);
@@ -151,8 +158,10 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         String description = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.DESCRIPTION));
         double value = cursor.getDouble(cursor.getColumnIndexOrThrow(TransactionEntry.VALUE));
         String currency = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.CURRENCY));
+        Long transactionDateTimeFromDb = cursor.getLong(cursor.getColumnIndexOrThrow(TransactionEntry.CREATED_AT));
+        Date transactionDateTime = new Date(transactionDateTimeFromDb);
 
-        return transactionFactory.createFromSql(type, id, description, value, currency);
+        return transactionFactory.createFromSql(type, id, description, value, currency, transactionDateTime);
     }
 
     @Override
@@ -175,6 +184,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         values.put(TransactionEntry.DESCRIPTION, transaction.getDescription());
         values.put(TransactionEntry.VALUE, transaction.getValue());
         values.put(TransactionEntry.CURRENCY, transaction.getCurrency());
+        values.put(TransactionEntry.CREATED_AT, transaction.getCreatedDateTime().getTime());
 
         if (transaction instanceof DepositTransaction)
             values.put(TransactionEntry.TYPE, transactionFactory.getSqlTypeDeposit());

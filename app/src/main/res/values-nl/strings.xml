@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Budget</string>
+    <string name="title_transaction_list">Transacties</string>
+    <string name="transaction_description">Omschrijving...</string>
+    <string name="transaction_description_error">Omschrijving is verplicht</string>
+    <string name="transaction_value">Waarde...</string>
+    <string name="transaction_value_error">Waarde is verplicht</string>
+    <string name="deposit_description">Inkomst</string>
+    <string name="withdraw_description">Uitgave</string>
+    <string name="select_transaction_currency_prompt">Selecteer munteenheid</string>
+    <string name="transaction_select_currency_label">Munteenheid</string>
+    <string name="transaction_list_description" formatted="false">Waarde van de transactie: %.2f %s</string>
+</resources>

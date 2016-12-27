@@ -1,12 +1,14 @@
 package com.example.hansb.budgetapp.business;
 
+import java.util.Date;
+
 public class WithdrawTransaction extends TransactionBase {
 
-    WithdrawTransaction(long id, double value, String description, String currency) {
-        super(id, value, description, currency);
+    WithdrawTransaction(long id, double value, String description, String currency, Date createdDateTime) {
+        super(id, value, description, currency, createdDateTime);
     }
 
-    WithdrawTransaction(double value, String description, String currency) {
-        super(value, description, currency);
+    public WithdrawTransaction(double value, String description, String currency, Date creationDateTime) {
+        super(value, description, currency, creationDateTime);
     }
 }

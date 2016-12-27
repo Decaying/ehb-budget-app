@@ -18,10 +18,13 @@ import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
+import com.example.hansb.budgetapp.services.TimeService;
 import com.google.common.base.Strings;
 import com.google.common.primitives.Doubles;
 
 import org.apache.logging.log4j.Logger;
+
+import java.util.Date;
 
 /**
  * Created by HansB on 25/12/2016.
@@ -32,6 +35,7 @@ public class CreateTransactionFragment
         implements Button.OnClickListener {
     private final Logger logger;
     private final TransactionRepository transactionRepository;
+    private final TimeService timeService;
     private TransactionFactory transactionFactory;
 
     public CreateTransactionFragment() {
@@ -47,6 +51,7 @@ public class CreateTransactionFragment
         this.logger = injector.getLogger(CreateTransactionFragment.class);
         this.transactionRepository = injector.getTransactionRepository();
         this.transactionFactory = injector.getTransactionFactory();
+        this.timeService = injector.getTimeService();
     }
 
     @Nullable
@@ -105,9 +110,10 @@ public class CreateTransactionFragment
     }
 
     private Transaction tryCreateTransaction(TransactionFactory.TransactionType transactionType, String description, Double value, String currency) {
+        Date now = timeService.now();
 
         try {
-            return transactionFactory.create(transactionType, description, value, currency);
+            return transactionFactory.create(transactionType, description, value, currency, now);
         } catch (Exception ex) {
             logger.error("Failed to create transaction", ex);
         }

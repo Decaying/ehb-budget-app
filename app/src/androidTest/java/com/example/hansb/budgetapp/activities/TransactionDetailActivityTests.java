@@ -109,4 +109,14 @@ public class TransactionDetailActivityTests extends TransactionDetailActivityTes
         assertThat(getFakeTransactionRepository().hasANewTransactionHasBeenCreated(), is(true));
         assertThat(getFakeTransactionRepository().newlyCreatedTransaction().getCurrency(), is("USD"));
     }
+
+    @Test
+    public void testThatWhenSavedTransactionHasCreationDateNow() {
+        getSut();
+
+        setTransactionDetails();
+        clickSaveTransaction();
+
+        assertThat(getFakeTransactionRepository().newlyCreatedTransaction().getCreatedDateTime(), is(getFakeTimeService().now()));
+    }
 }

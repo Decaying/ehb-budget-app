@@ -154,7 +154,7 @@ public class TransactionListFragment
             ImageView imageView = (ImageView) transactionListItemView.findViewById(R.id.icon);
 
             headerLine.setText(currentTransaction.getDescription());
-            detailLine.setText(String.format("Transaction value: %.2f", currentTransaction.getValue()));
+            detailLine.setText(String.format(getString(R.string.transaction_list_description), currentTransaction.getValue(), currentTransaction.getCurrency()));
 
             if (currentTransaction instanceof DepositTransaction)
                 imageView.setImageResource(R.drawable.deposit);
