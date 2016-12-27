@@ -3,14 +3,16 @@
     android:id="@+id/transaction_detail_layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin">
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/transaction_type"
         android:layout_width="fill_parent"
         android:layout_height="@dimen/button_height"
         android:orientation="horizontal"
-        android:background="@drawable/radio_group">
+        android:background="@drawable/radio_group"
+        android:layout_marginBottom="16dp">
 
         <RadioButton
             android:id="@+id/transaction_type_deposit"
@@ -38,14 +40,38 @@
         android:id="@+id/transaction_description"
         android:layout_height="wrap_content"
         android:hint="@string/transaction_description"
-        android:layout_width="fill_parent" />
+        android:layout_width="fill_parent"
+        android:textSize="@dimen/label_size" />
 
     <EditText
         android:id="@+id/transaction_value"
         android:layout_height="wrap_content"
         android:hint="@string/transaction_value"
         android:layout_width="fill_parent"
-        android:inputType="numberDecimal|number" />
+        android:inputType="numberDecimal|number"
+        android:textSize="@dimen/label_size" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight=".50"
+            android:text="@string/transaction_select_currency_label"
+            android:gravity="left|center_vertical"
+            android:textSize="@dimen/label_size"
+            android:paddingLeft="@dimen/label_padding_left" />
+
+        <Spinner
+            android:id="@+id/select_transaction_currency"
+            android:layout_width="wrap_content"
+            android:prompt="@string/select_transaction_currency_prompt"
+            android:layout_height="@dimen/button_height"
+            android:layout_weight=".50"
+            android:entries="@array/currency_arrays" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/save_transaction"

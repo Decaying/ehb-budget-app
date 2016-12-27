@@ -1,5 +1,7 @@
 package com.example.hansb.budgetapp.business;
 
+import java.util.Date;
+
 /**
  * Created by HansB on 15/12/2016.
  */
@@ -21,15 +23,15 @@ public class TransactionFactoryImpl implements SqlTransactionFactory, Transactio
 
 
     @Override
-    public Transaction createFromSql(String type, long id, String description, double value) throws Exception {
+    public Transaction createFromSql(String type, long id, String description, double value, String currency, Date dateTimeCreated) throws Exception {
         Transaction transaction;
 
         switch (type) {
             case depositType:
-                transaction = new DepositTransaction(value, description);
+                transaction = new DepositTransaction(id, value, description, currency, dateTimeCreated);
                 break;
             case withdrawType:
-                transaction = new WithdrawTransaction(value, description);
+                transaction = new WithdrawTransaction(id, value, description, currency, dateTimeCreated);
                 break;
             default:
                 throw new Exception("Invalid transaction type: " + type);
@@ -39,8 +41,21 @@ public class TransactionFactoryImpl implements SqlTransactionFactory, Transactio
     }
 
     @Override
-    public Transaction create(TransactionType type, String description, Double value) throws Exception {
-        return createFromSql(getSqlTypeName(type), 0, description, value);
+    public Transaction create(TransactionType type, String description, Double value, String currency, Date createdDateTime) throws Exception {
+        Transaction transaction;
+
+        switch (getSqlTypeName(type)) {
+            case depositType:
+                transaction = new DepositTransaction(value, description, currency, createdDateTime);
+                break;
+            case withdrawType:
+                transaction = new WithdrawTransaction(value, description, currency, createdDateTime);
+                break;
+            default:
+                throw new Exception("Invalid transaction type: " + type);
+        }
+
+        return transaction;
     }
 
     private String getSqlTypeName(TransactionType type) {

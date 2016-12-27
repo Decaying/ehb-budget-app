@@ -48,3 +48,8 @@ captures/
 
 # Keystore files
 *.jks
+/gradlew
+/BudgetApp.iml
+/gradlew.bat
+/.idea/
+/gradle/

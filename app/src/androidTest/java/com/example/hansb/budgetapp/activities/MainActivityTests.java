@@ -31,13 +31,13 @@ public class MainActivityTests extends MainActivityTestBase {
     @Test
     public void testThatListViewContainsDetails() throws Exception {
         String transactionDescription = "Purchased an instrumentation test";
-        getFakeTransactionRepository().whenOneDepositTransactionIsAvailable(123.7458, transactionDescription);
+        getFakeTransactionRepository().whenOneDepositTransactionIsAvailable(123.7458, transactionDescription, "EUR");
         MainActivity activity = getSut();
 
         View transactionView = getTransactionItemView(activity, 0);
 
         assertThat(getHeaderLine(transactionView).getText().toString(), is(transactionDescription));
-        assertThat(getDetailLine(transactionView).getText().toString(), is("Transaction value: 123.75"));
+        assertThat(getDetailLine(transactionView).getText().toString(), is("Transaction value: 123.75 EUR"));
     }
 
     @Test
