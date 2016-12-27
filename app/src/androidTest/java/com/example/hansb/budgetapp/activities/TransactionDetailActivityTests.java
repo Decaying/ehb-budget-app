@@ -22,10 +22,10 @@ public class TransactionDetailActivityTests extends TransactionDetailActivityTes
     public void testThatADepositTransactionCanBeCreated() {
         getSut();
 
-        setTransactionDetails("Paycheck!", 1000.00);
+        setTransactionDetails();
         clickSaveTransaction();
 
-        assertThat(FakeTransactionRepository.hasANewTransactionHasBeenCreated(), is(true));
+        assertThat(getFakeTransactionRepository().hasANewTransactionHasBeenCreated(), is(true));
     }
 
     @Test
@@ -33,7 +33,7 @@ public class TransactionDetailActivityTests extends TransactionDetailActivityTes
         getSut();
         Instrumentation.ActivityMonitor mainActivityMonitor = setupActivityMonitor(MainActivity.class);
 
-        setTransactionDetails("Paycheck!", 1000.00);
+        setTransactionDetails();
         clickSaveTransaction();
 
         waitForActivity(mainActivityMonitor);
@@ -43,7 +43,7 @@ public class TransactionDetailActivityTests extends TransactionDetailActivityTes
     public void testThatNegativeAmountDoesNotWork() {
         TransactionDetailActivity activity = getSut();
 
-        setTransactionDetails("Paycheck!", -1000.00);
+        setTransactionValue(-1000.00);
 
         assertThat(getTransactionValue(activity), is(1000.00));
     }

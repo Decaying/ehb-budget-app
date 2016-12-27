@@ -11,10 +11,14 @@ import com.example.hansb.budgetapp.repository.FakeTransactionRepository;
  * Created by HansB on 25/12/2016.
  */
 public class TransactionDetailActivityTestBase extends ActivityTestBase<TransactionDetailActivity> {
-    protected com.example.hansb.budgetapp.repository.FakeTransactionRepository FakeTransactionRepository;
+    private com.example.hansb.budgetapp.repository.FakeTransactionRepository fakeTransactionRepository;
 
     public TransactionDetailActivityTestBase() {
         super(TransactionDetailActivity.class);
+    }
+
+    protected FakeTransactionRepository getFakeTransactionRepository() {
+        return fakeTransactionRepository;
     }
 
     @Override
@@ -22,8 +26,8 @@ public class TransactionDetailActivityTestBase extends ActivityTestBase<Transact
         super.configureContainer(injector);
 
         TransactionDetailActivity.Injector = injector;
-        FakeTransactionRepository = new FakeTransactionRepository(injector);
-        injector.setTransactionRepository(FakeTransactionRepository);
+        fakeTransactionRepository = new FakeTransactionRepository(injector);
+        injector.setTransactionRepository(fakeTransactionRepository);
     }
 
     @Override
@@ -33,6 +37,10 @@ public class TransactionDetailActivityTestBase extends ActivityTestBase<Transact
         intent.putExtra("mode", TransactionDetailActivity.Mode.Create);
 
         return intent;
+    }
+
+    protected void setTransactionDetails() {
+        setTransactionDetails("Paycheck!", 1000.00);
     }
 
     protected void setTransactionDetails(String description, Double value) {
