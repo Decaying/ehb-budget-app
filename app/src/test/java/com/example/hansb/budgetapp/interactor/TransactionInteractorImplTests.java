@@ -36,11 +36,10 @@ public class TransactionInteractorImplTests extends TestBaseImpl<TransactionInte
 
     @Test
     public void canLoadTransactions() throws Exception {
-        String transactionType = "DEPOSIT";
         String transactionDescription = "a Euro saved, is a Euro earned.";
         double transactionValue = 1.00;
 
-        repository.whenOneDepositTransactionIsAvailable(transactionType, transactionValue, transactionDescription);
+        repository.whenOneDepositTransactionIsAvailable(transactionValue, transactionDescription);
 
         getSut().run(callback);
 

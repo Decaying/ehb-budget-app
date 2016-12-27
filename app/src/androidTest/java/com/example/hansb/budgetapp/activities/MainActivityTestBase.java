@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.notNullValue;
  * Created by HansB on 25/12/2016.
  */
 public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
-    protected FakeTransactionRepository FakeTransactionRepository;
+    protected FakeTransactionRepository fakeTransactionRepository;
 
     public MainActivityTestBase() {
         super(MainActivity.class);
@@ -28,8 +28,12 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
 
         MainActivity.Injector = injector;
 
-        FakeTransactionRepository = new FakeTransactionRepository(injector);
-        injector.setTransactionRepository(FakeTransactionRepository);
+        fakeTransactionRepository = new FakeTransactionRepository(injector);
+        injector.setTransactionRepository(fakeTransactionRepository);
+    }
+
+    protected FakeTransactionRepository getFakeTransactionRepository() {
+        return fakeTransactionRepository;
     }
 
     protected ListView getTransactionListView(MainActivity activity) {

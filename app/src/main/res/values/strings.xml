@@ -5,4 +5,6 @@
     <string name="transaction_description_error">Description is required</string>
     <string name="transaction_value">Value...</string>
     <string name="transaction_value_error">Value is required</string>
+    <string name="deposit_description">Deposit</string>
+    <string name="withdraw_description">Withdraw</string>
 </resources>

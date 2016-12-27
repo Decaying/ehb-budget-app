@@ -5,10 +5,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="100px"
-        android:text="Create a new transaction" />
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/transaction_type"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/button_height"
+        android:orientation="horizontal"
+        android:background="@drawable/radio_group">
+
+        <RadioButton
+            android:id="@+id/transaction_type_deposit"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight=".50"
+            android:textAlignment="center"
+            android:text="@string/deposit_description"
+            android:button="@android:color/transparent"
+            android:background="@drawable/radio_button"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/transaction_type_withdraw"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight=".50"
+            android:textAlignment="center"
+            android:button="@android:color/transparent"
+            android:background="@drawable/radio_button"
+            android:text="@string/withdraw_description" />
+    </RadioGroup>
 
     <EditText
         android:id="@+id/transaction_description"

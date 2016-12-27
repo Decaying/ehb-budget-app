@@ -21,6 +21,7 @@ public class FakeTransactionRepository implements TransactionRepository {
     private boolean shouldThrowException = false;
     private boolean getAllTransactionsHasBeenCalled = false;
     private boolean aNewTransactionHasBeenCreated = false;
+    private Transaction newlyCreatedTransaction = null;
 
     public FakeTransactionRepository(AppInjector injector) {
         this.transactionFactory = injector.getTransactionFactory();
@@ -40,17 +41,18 @@ public class FakeTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public void createTransaction(Transaction transaction) {
+    public void saveTransaction(Transaction transaction) {
         aNewTransactionHasBeenCreated = true;
+        newlyCreatedTransaction = transaction;
     }
 
-    public void whenOneDepositTransactionIsAvailable(String type, double value, String description) throws Exception {
-        logger.debug(String.format("One %s should be available", type));
-        transactions.add(transactionFactory.create(type, description, value));
+    public void whenOneDepositTransactionIsAvailable(double value, String description) throws Exception {
+        logger.debug(String.format("One deposit should be available"));
+        transactions.add(transactionFactory.create(TransactionFactory.TransactionType.Deposit, description, value));
     }
 
     public void whenOneDepositTransactionIsAvailable() throws Exception {
-        whenOneDepositTransactionIsAvailable("DEPOSIT", 1.00, "test description");
+        whenOneDepositTransactionIsAvailable(1.00, "test description");
     }
 
     public void whenDbUnavailable() {
@@ -63,5 +65,9 @@ public class FakeTransactionRepository implements TransactionRepository {
 
     public boolean hasANewTransactionHasBeenCreated() {
         return aNewTransactionHasBeenCreated;
+    }
+
+    public Transaction newlyCreatedTransaction() {
+        return newlyCreatedTransaction;
     }
 }
