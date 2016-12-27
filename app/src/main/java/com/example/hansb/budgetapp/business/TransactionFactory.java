@@ -9,5 +9,5 @@ public interface TransactionFactory {
         Withdraw
     }
 
-    Transaction create(TransactionType type, String description, Double value) throws Exception;
+    Transaction create(TransactionType type, String description, Double value, String currency) throws Exception;
 }

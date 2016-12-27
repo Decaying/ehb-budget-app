@@ -10,4 +10,6 @@ public interface Transaction {
     double getValue();
 
     String getDescription();
+
+    String getCurrency();
 }

@@ -37,16 +37,20 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
         private static final String TYPE = "type";
         private static final String TYPE_TYPE = "TEXT NOT NULL";
+
+        private static final String CURRENCY = "CURRENCY";
+        private static final String CURRENCY_TYPE = "TEXT NOT NULL";
     }
 
     private static final String DATABASE_NAME = "budgetapp.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     private String[] projection = {
             TransactionEntry.ID,
             TransactionEntry.DESCRIPTION,
             TransactionEntry.VALUE,
-            TransactionEntry.TYPE
+            TransactionEntry.TYPE,
+            TransactionEntry.CURRENCY
     };
 
     public SqlLiteTransactionRepository(AppInjector injector) {
@@ -65,6 +69,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
                         TransactionEntry.DESCRIPTION + " " + TransactionEntry.DESCRIPTION_TYPE + "," +
                         TransactionEntry.TYPE + " " + TransactionEntry.TYPE_TYPE + "," +
                         TransactionEntry.VALUE + " " + TransactionEntry.VALUE_TYPE +
+                        TransactionEntry.CURRENCY + " " + TransactionEntry.CURRENCY_TYPE +
                         ")";
 
         db.execSQL(CREATE_TRANSACTIONS_TABLE);
@@ -145,8 +150,9 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         String type = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.TYPE));
         String description = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.DESCRIPTION));
         double value = cursor.getDouble(cursor.getColumnIndexOrThrow(TransactionEntry.VALUE));
+        String currency = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.CURRENCY));
 
-        return transactionFactory.createFromSql(type, id, description, value);
+        return transactionFactory.createFromSql(type, id, description, value, currency);
     }
 
     @Override
@@ -168,6 +174,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
         values.put(TransactionEntry.DESCRIPTION, transaction.getDescription());
         values.put(TransactionEntry.VALUE, transaction.getValue());
+        values.put(TransactionEntry.CURRENCY, transaction.getCurrency());
 
         if (transaction instanceof DepositTransaction)
             values.put(TransactionEntry.TYPE, transactionFactory.getSqlTypeDeposit());

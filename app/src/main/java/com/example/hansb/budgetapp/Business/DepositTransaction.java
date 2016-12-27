@@ -5,12 +5,12 @@ package com.example.hansb.budgetapp.business;
  */
 
 public class DepositTransaction extends TransactionBase {
-    DepositTransaction(long id, double value, String description) {
-        super(id, value, description);
+    DepositTransaction(long id, double value, String description, String currency) {
+        super(id, value, description, currency);
     }
 
-    DepositTransaction(double value, String description) {
-        super(value, description);
+    DepositTransaction(double value, String description, String currency) {
+        super(value, description, currency);
     }
 }
 

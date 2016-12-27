@@ -81,4 +81,32 @@ public class TransactionDetailActivityTests extends TransactionDetailActivityTes
         assertThat(getFakeTransactionRepository().hasANewTransactionHasBeenCreated(), is(true));
         assertThat(getFakeTransactionRepository().newlyCreatedTransaction(), instanceOf(WithdrawTransaction.class));
     }
+
+    @Test
+    public void testThatDefaultCurrencyIsEUR() {
+        TransactionDetailActivity activity = getSut();
+
+        assertThat(getCurrency(activity), is("EUR"));
+    }
+
+    @Test
+    public void testThatCurrencyCanBeDollar() {
+        TransactionDetailActivity activity = getSut();
+
+        setCurrency("USD");
+
+        assertThat(getCurrency(activity), is("USD"));
+    }
+
+    @Test
+    public void testThatWhenCurrencyIsDollarItGetsSavedToDb() {
+        getSut();
+
+        setTransactionDetails();
+        setCurrency("USD");
+        clickSaveTransaction();
+
+        assertThat(getFakeTransactionRepository().hasANewTransactionHasBeenCreated(), is(true));
+        assertThat(getFakeTransactionRepository().newlyCreatedTransaction().getCurrency(), is("USD"));
+    }
 }

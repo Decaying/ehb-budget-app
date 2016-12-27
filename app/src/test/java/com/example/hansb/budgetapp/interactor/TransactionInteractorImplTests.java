@@ -38,18 +38,21 @@ public class TransactionInteractorImplTests extends TestBaseImpl<TransactionInte
     public void canLoadTransactions() throws Exception {
         String transactionDescription = "a Euro saved, is a Euro earned.";
         double transactionValue = 1.00;
+        String transactionCurrency = "EUR";
 
-        repository.whenOneDepositTransactionIsAvailable(transactionValue, transactionDescription);
+        repository.whenOneDepositTransactionIsAvailable(transactionValue, transactionDescription, transactionCurrency);
 
         getSut().run(callback);
 
         assertTrue(callback.areTransactionsReceived());
-        if (callback.areTransactionsReceived()) {
-            Transaction transaction = callback.getTransactions()[0];
-            assertThat(transaction, instanceOf(DepositTransaction.class));
-            assertEquals(transaction.getDescription(), transactionDescription);
-            assertEquals(transaction.getValue(), transactionValue);
-        }
+
+        Transaction transaction = callback.getTransactions()[0];
+
+        assertThat(transaction, instanceOf(DepositTransaction.class));
+        assertEquals(transaction.getDescription(), transactionDescription);
+        assertEquals(transaction.getValue(), transactionValue);
+        assertEquals(transaction.getCurrency(), transactionCurrency);
+
     }
 
     @Test

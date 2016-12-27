@@ -5,7 +5,7 @@ package com.example.hansb.budgetapp.business;
  */
 
 public interface SqlTransactionFactory {
-    Transaction createFromSql(String type, long id, String description, double value) throws Exception;
+    Transaction createFromSql(String type, long id, String description, double value, String currency) throws Exception;
 
     String getSqlTypeDeposit();
 

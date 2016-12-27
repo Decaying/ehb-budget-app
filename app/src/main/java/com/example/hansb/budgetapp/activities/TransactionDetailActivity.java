@@ -37,7 +37,6 @@ public class TransactionDetailActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             Mode mode = (Mode) parameters.get("mode");
 
-            //TODO: find better way for passing Dependency Injection container
             Fragment fragment = getTransactionDetailFragment(Injector, mode);
 
             getFragmentManager()

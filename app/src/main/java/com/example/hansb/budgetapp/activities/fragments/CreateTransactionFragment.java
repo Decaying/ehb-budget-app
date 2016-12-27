@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.Spinner;
 
 import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.R;
@@ -74,6 +75,7 @@ public class CreateTransactionFragment
         String description = getDescription();
         Double value = getValue();
         TransactionFactory.TransactionType type = tryGetTransactionType();
+        String currency = getCurrency();
 
         if (!validateTransaction(description, value)) {
             logger.debug("validation of transaction values failed");
@@ -81,7 +83,7 @@ public class CreateTransactionFragment
         }
 
         logger.debug("validation of transaction values success");
-        Transaction transaction = tryCreateTransaction(type, description, value);
+        Transaction transaction = tryCreateTransaction(type, description, value, currency);
 
         if (transaction != null) {
             logger.info(String.format("Saving transaction '%s'", description));
@@ -102,10 +104,10 @@ public class CreateTransactionFragment
         return transactionType;
     }
 
-    private Transaction tryCreateTransaction(TransactionFactory.TransactionType transactionType, String description, Double value) {
+    private Transaction tryCreateTransaction(TransactionFactory.TransactionType transactionType, String description, Double value, String currency) {
 
         try {
-            return transactionFactory.create(transactionType, description, value);
+            return transactionFactory.create(transactionType, description, value, currency);
         } catch (Exception ex) {
             logger.error("Failed to create transaction", ex);
         }
@@ -185,5 +187,13 @@ public class CreateTransactionFragment
 
     private EditText getTransactionValueView() {
         return (EditText) getActivity().findViewById(R.id.transaction_value);
+    }
+
+    public String getCurrency() {
+        return getCurrencyView().getSelectedItem().toString();
+    }
+
+    private Spinner getCurrencyView() {
+        return (Spinner) getActivity().findViewById(R.id.select_transaction_currency);
     }
 }

@@ -2,10 +2,21 @@ package com.example.hansb.budgetapp.activities;
 
 import android.content.Intent;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.TestAppInjector;
 import com.example.hansb.budgetapp.repository.FakeTransactionRepository;
+
+import static android.support.test.espresso.Espresso.onData;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withSpinnerText;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Created by HansB on 25/12/2016.
@@ -66,5 +77,15 @@ public class TransactionDetailActivityTestBase extends ActivityTestBase<Transact
 
     protected void setTransactionTypeWithdraw() {
         clickView(R.id.transaction_type_withdraw);
+    }
+
+    protected void setCurrency(String currency) {
+        clickView(R.id.select_transaction_currency);
+        onData(allOf(is(instanceOf(String.class)), is(currency))).perform(click());
+        onView(withId(R.id.select_transaction_currency)).check(matches(withSpinnerText(is(currency))));
+    }
+
+    protected String getCurrency(TransactionDetailActivity activity) {
+        return ((Spinner) getView(activity, R.id.select_transaction_currency)).getSelectedItem().toString();
     }
 }

@@ -46,13 +46,13 @@ public class FakeTransactionRepository implements TransactionRepository {
         newlyCreatedTransaction = transaction;
     }
 
-    public void whenOneDepositTransactionIsAvailable(double value, String description) throws Exception {
+    public void whenOneDepositTransactionIsAvailable(double value, String description, String currency) throws Exception {
         logger.debug(String.format("One deposit should be available"));
-        transactions.add(transactionFactory.create(TransactionFactory.TransactionType.Deposit, description, value));
+        transactions.add(transactionFactory.create(TransactionFactory.TransactionType.Deposit, description, value, currency));
     }
 
     public void whenOneDepositTransactionIsAvailable() throws Exception {
-        whenOneDepositTransactionIsAvailable(1.00, "test description");
+        whenOneDepositTransactionIsAvailable(1.00, "test description", "EUR");
     }
 
     public void whenDbUnavailable() {
