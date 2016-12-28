@@ -2,14 +2,14 @@ package com.example.hansb.budgetapp;
 
 import android.content.Context;
 
-import com.birbit.android.jobqueue.JobManager;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.budgetapp.sqlite.SqlLiteTransactionRepository;
 import com.example.hansb.budgetapp.business.TransactionFactory;
 import com.example.hansb.budgetapp.business.TransactionFactoryImpl;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
 import com.example.hansb.budgetapp.interactor.TransactionInteractorImpl;
-import com.example.hansb.budgetapp.services.JobManagerConfigurator;
+import com.example.hansb.budgetapp.services.JobQueue;
+import com.example.hansb.budgetapp.services.JobQueueConfigurator;
 import com.example.hansb.budgetapp.services.TimeService;
 import com.example.hansb.budgetapp.services.TimeServiceImpl;
 import com.noveogroup.android.log.Logger;
@@ -21,16 +21,25 @@ import com.noveogroup.android.log.LoggerManager;
  */
 public class AppInjectorImpl implements AppInjector {
 
-    private Context context;
-    private JobManager jobManager;
+    private static AppInjectorImpl instance = new AppInjectorImpl();
 
-    public AppInjectorImpl(Context context) {
-        this.context = context;
+    public static AppInjectorImpl getInstance() {
+        return instance;
     }
 
+    public static void setInstance(AppInjectorImpl instance) {
+        AppInjectorImpl.instance = instance;
+    }
+
+    protected AppInjectorImpl() {
+    }
+
+
+    private JobQueue jobQueue;
+
     @Override
-    public TransactionRepository getTransactionRepository() {
-        return new SqlLiteTransactionRepository(this);
+    public TransactionRepository getTransactionRepository(Context context) {
+        return new SqlLiteTransactionRepository(context, this);
     }
 
     @Override
@@ -39,8 +48,8 @@ public class AppInjectorImpl implements AppInjector {
     }
 
     @Override
-    public TransactionInteractor getTransactionInteractor() {
-        return new TransactionInteractorImpl(this);
+    public TransactionInteractor getTransactionInteractor(Context context) {
+        return new TransactionInteractorImpl(context, this);
     }
 
     @Override
@@ -49,25 +58,15 @@ public class AppInjectorImpl implements AppInjector {
     }
 
     @Override
-    public Context getContext() {
-        return context;
-    }
-
-    @Override
     public TimeService getTimeService() {
         return new TimeServiceImpl();
     }
 
     @Override
-    public JobManager getJobManager() {
-        if (jobManager == null) {
-            jobManager = new JobManagerConfigurator(this).getJobmanager();
+    public JobQueue getJobQueue(Context context) {
+        if (jobQueue == null) {
+            jobQueue = new JobQueueConfigurator(context, this).getJobQueue();
         }
-        return jobManager;
-    }
-
-    @Override
-    public JobManagerConfigurator getJobManagerConfigurator() {
-        return new JobManagerConfigurator(this);
+        return jobQueue;
     }
 }

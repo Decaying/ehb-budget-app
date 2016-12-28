@@ -1,6 +1,5 @@
 package com.example.hansb.budgetapp.activities.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -21,9 +20,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.hansb.budgetapp.AppInjector;
+import com.example.hansb.budgetapp.AppInjectorImpl;
 import com.example.hansb.budgetapp.R;
-import com.example.hansb.budgetapp.activities.MainActivity;
 import com.example.hansb.budgetapp.activities.TransactionDetailActivity;
 import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.Transaction;
@@ -44,17 +42,13 @@ public class TransactionListFragment
         SwipeRefreshLayout.OnRefreshListener {
 
     private final Logger logger;
-    private final TransactionInteractor transactionInteractor;
 
     public TransactionListFragment() {
-        this(MainActivity.Injector);
-    }
-
-    @SuppressLint("ValidFragment")
-    public TransactionListFragment(AppInjector injector) {
         super();
+
+        AppInjectorImpl injector = AppInjectorImpl.getInstance();
+
         this.logger = injector.getLogger(TransactionListFragment.class);
-        this.transactionInteractor = injector.getTransactionInteractor();
     }
 
     @Nullable
@@ -123,7 +117,7 @@ public class TransactionListFragment
 
     private void loadTransactions() {
         logger.d("Loading transactions");
-        transactionInteractor.run(transactionInteractorCallback());
+        AppInjectorImpl.getInstance().getTransactionInteractor(getActivity()).run(transactionInteractorCallback());
     }
 
     @NonNull

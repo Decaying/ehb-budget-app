@@ -11,13 +11,15 @@ import com.noveogroup.android.log.LoggerManager;
 
 public abstract class InstrumentationTestBase<T> extends InstrumentationTestCase implements TestBase<T> {
     protected final Logger Logger;
-    protected final TestAppInjector AppInjector;
+    protected TestAppInjector AppInjector;
 
     public InstrumentationTestBase() {
         AppInjector = new TestAppInjector();
         Logger = getLogger();
 
         configureContainer(AppInjector);
+
+        AppInjectorImpl.setInstance(AppInjector);
     }
 
     private Logger getLogger() {

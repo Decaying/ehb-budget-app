@@ -1,5 +1,7 @@
 package com.example.hansb.budgetapp.interactor;
 
+import android.content.Context;
+
 import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
@@ -15,9 +17,9 @@ public class TransactionInteractorImpl implements TransactionInteractor {
     private final Logger logger;
     private final TransactionRepository transactionRepository;
 
-    public TransactionInteractorImpl(AppInjector injector) {
+    public TransactionInteractorImpl(Context context, AppInjector injector) {
         this.logger = injector.getLogger(TransactionInteractorImpl.class);
-        this.transactionRepository = injector.getTransactionRepository();
+        this.transactionRepository = injector.getTransactionRepository(context);
     }
 
     @Override

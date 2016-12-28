@@ -1,6 +1,5 @@
 package com.example.hansb.budgetapp.activities.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,13 +12,11 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 
-import com.birbit.android.jobqueue.JobManager;
-import com.example.hansb.budgetapp.AppInjector;
+import com.example.hansb.budgetapp.AppInjectorImpl;
 import com.example.hansb.budgetapp.R;
-import com.example.hansb.budgetapp.activities.MainActivity;
-import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
+import com.example.hansb.budgetapp.services.JobQueue;
 import com.example.hansb.budgetapp.services.TimeService;
 import com.example.hansb.budgetapp.services.jobs.DetermineTransactionConversionRateJob;
 import com.google.common.base.Strings;
@@ -36,24 +33,19 @@ public class CreateTransactionFragment
         extends Fragment
         implements Button.OnClickListener {
     private final Logger logger;
-    private final TransactionRepository transactionRepository;
     private final TimeService timeService;
-    private final JobManager jobManager;
+    private final JobQueue jobQueue;
     private TransactionFactory transactionFactory;
 
     public CreateTransactionFragment() {
-        this(MainActivity.Injector);
-    }
-
-    @SuppressLint("ValidFragment")
-    public CreateTransactionFragment(AppInjector injector) {
         super();
 
+        AppInjectorImpl injector = AppInjectorImpl.getInstance();
+
         this.logger = injector.getLogger(CreateTransactionFragment.class);
-        this.transactionRepository = injector.getTransactionRepository();
         this.transactionFactory = injector.getTransactionFactory();
         this.timeService = injector.getTimeService();
-        this.jobManager = injector.getJobManager();
+        this.jobQueue = injector.getJobQueue(getActivity());
     }
 
     @Nullable
@@ -94,10 +86,10 @@ public class CreateTransactionFragment
 
         if (transaction != null) {
             logger.v(String.format("Saving transaction '%s'", description));
-            Transaction newTransaction = transactionRepository.saveTransaction(transaction);
+            Transaction newTransaction = AppInjectorImpl.getInstance().getTransactionRepository(getActivity()).saveTransaction(transaction);
 
             if (newTransaction != null) {
-                jobManager.addJobInBackground(new DetermineTransactionConversionRateJob(newTransaction));
+                jobQueue.addJobInBackground(new DetermineTransactionConversionRateJob(newTransaction));
 
                 navigateToParent();
             }

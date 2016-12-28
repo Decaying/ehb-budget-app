@@ -3,6 +3,7 @@ package com.example.hansb.budgetapp;
 import android.content.Context;
 
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
+import com.example.hansb.budgetapp.services.JobQueue;
 import com.example.hansb.budgetapp.services.TimeService;
 
 /**
@@ -12,18 +13,9 @@ public class TestAppInjector extends AppInjectorImpl {
     private TransactionRepository transactionRepository;
     private TimeService timeService;
 
-    public TestAppInjector() {
-        super(null);
-    }
-
     @Override
-    public TransactionRepository getTransactionRepository() {
+    public TransactionRepository getTransactionRepository(Context context) {
         return transactionRepository;
-    }
-
-    @Override
-    public Context getContext() {
-        throw new UnsupportedOperationException("We don't have a context in our tests");
     }
 
     public void setTransactionRepository(TransactionRepository transactionRepository) {
@@ -37,5 +29,10 @@ public class TestAppInjector extends AppInjectorImpl {
     @Override
     public TimeService getTimeService() {
         return timeService;
+    }
+
+    @Override
+    public JobQueue getJobQueue(Context context) {
+        return new FakeJobQueue(this);
     }
 }

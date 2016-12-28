@@ -28,8 +28,6 @@ public class MainActivityTestBase extends ActivityTestBase<MainActivity> {
     public void configureContainer(TestAppInjector injector) {
         super.configureContainer(injector);
 
-        MainActivity.Injector = injector;
-
         fakeTimeService = new FakeTimeService();
         injector.setTimeService(fakeTimeService);
 

@@ -1,6 +1,7 @@
 package com.example.hansb.budgetapp.budgetapp.sqlite;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -62,8 +63,8 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
             TransactionEntry.CONVERSION_RATE
     };
 
-    public SqlLiteTransactionRepository(AppInjector injector) {
-        super(injector.getContext(), DATABASE_NAME, null, DATABASE_VERSION);
+    public SqlLiteTransactionRepository(Context context, AppInjector injector) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.transactionFactory = (SqlTransactionFactory) injector.getTransactionFactory();
         this.logger = injector.getLogger(SqlLiteTransactionRepository.class);
     }

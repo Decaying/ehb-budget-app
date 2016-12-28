@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Build;
 
 import com.birbit.android.jobqueue.Job;
-import com.birbit.android.jobqueue.JobManager;
 import com.birbit.android.jobqueue.config.Configuration;
 import com.birbit.android.jobqueue.di.DependencyInjector;
 import com.birbit.android.jobqueue.log.CustomLogger;
@@ -13,6 +12,7 @@ import com.birbit.android.jobqueue.scheduling.GcmJobSchedulerService;
 import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.services.jobs.DetermineTransactionConversionRateJob;
+import com.example.hansb.budgetapp.services.jobs.JobQueueImpl;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.noveogroup.android.log.Logger;
@@ -21,26 +21,26 @@ import com.noveogroup.android.log.Logger;
  * Created by HansB on 27/12/2016.
  */
 
-public class JobManagerConfigurator {
+public class JobQueueConfigurator {
 
-    private final Logger logger;
     private final Context context;
-    private JobManager jobmanager;
+    private final Logger logger;
+    private JobQueueImpl jobmanager;
     private TransactionRepository transactionRepository;
 
-    public JobManagerConfigurator(AppInjector injector) {
-        this.logger = injector.getLogger(JobManagerConfigurator.class);
-        this.context = injector.getContext();
-        this.transactionRepository = injector.getTransactionRepository();
+    public JobQueueConfigurator(Context context, AppInjector injector) {
+        this.context = context;
+        this.logger = injector.getLogger(JobQueueConfigurator.class);
+        this.transactionRepository = injector.getTransactionRepository(context);
     }
 
-    public JobManager getJobmanager() {
+    public JobQueueImpl getJobQueue() {
         if (jobmanager == null)
             jobmanager = this.configureJobManager();
         return jobmanager;
     }
 
-    private JobManager configureJobManager() {
+    private JobQueueImpl configureJobManager() {
         Configuration.Builder builder = new Configuration.Builder(context)
                 .minConsumerCount(1) // always keep at least one consumer alive
                 .maxConsumerCount(3) // up to 3 consumers at a time
@@ -94,6 +94,6 @@ public class JobManagerConfigurator {
                         BudgetGcmJobServiceImpl.class), false);
             }
         }
-        return new JobManager(builder.build());
+        return new JobQueueImpl(builder.build());
     }
 }

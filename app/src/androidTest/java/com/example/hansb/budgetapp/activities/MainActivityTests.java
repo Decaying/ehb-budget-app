@@ -82,7 +82,7 @@ public class MainActivityTests extends MainActivityTestBase {
 
         clickAddTransactionButton();
         TransactionDetailActivity transactionDetailActivity = waitForActivity(transactionDetailActivityMonitor);
-        clickUpNavigation(transactionDetailActivity);
+        clickUpNavigation();
 
         waitForActivity(mainActivityMonitor);
     }

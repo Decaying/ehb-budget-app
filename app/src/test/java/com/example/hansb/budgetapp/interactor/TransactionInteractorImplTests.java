@@ -66,6 +66,6 @@ public class TransactionInteractorImplTests extends TestBaseImpl<TransactionInte
 
     @Override
     public TransactionInteractorImpl getSut() {
-        return new TransactionInteractorImpl(injector);
+        return new TransactionInteractorImpl(null, injector);
     }
 }

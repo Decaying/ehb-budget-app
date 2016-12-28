@@ -14,15 +14,12 @@ import static java.lang.Thread.getDefaultUncaughtExceptionHandler;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static AppInjector Injector;
+    public static final AppInjector Injector = AppInjectorImpl.getInstance();
     private Logger logger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (Injector == null)
-            Injector = new AppInjectorImpl(getApplication());
 
         logger = Injector.getLogger(MainActivity.class);
         logger.d("Creating activity");
@@ -44,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startJobService() {
-        Injector.getJobManager();
+        Injector.getJobQueue(getApplication());
     }
 
     private void handleUncaughtException(Thread thread, Throwable ex) {
@@ -56,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayTransactionList() {
         logger.d("Display transactions");
-        Fragment transactionListFragment = new TransactionListFragment(Injector);
+        Fragment transactionListFragment = new TransactionListFragment();
 
         getFragmentManager()
                 .beginTransaction()
