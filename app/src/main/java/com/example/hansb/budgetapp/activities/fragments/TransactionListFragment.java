@@ -154,7 +154,7 @@ public class TransactionListFragment
             ImageView imageView = (ImageView) transactionListItemView.findViewById(R.id.icon);
 
             headerLine.setText(currentTransaction.getDescription());
-            detailLine.setText(String.format(getString(R.string.transaction_list_description), currentTransaction.getValue(), currentTransaction.getCurrency()));
+            detailLine.setText(buildDetailLine(currentTransaction));
 
             if (currentTransaction instanceof DepositTransaction)
                 imageView.setImageResource(R.drawable.deposit);
@@ -162,6 +162,45 @@ public class TransactionListFragment
                 imageView.setImageResource(R.drawable.withdrawal);
 
             return transactionListItemView;
+        }
+
+        private String buildDetailLine(Transaction currentTransaction) {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(getString(R.string.transaction_list_description));
+            sb.append(" ");
+            sb.append(String.format("%.2f", getTransactionValue(currentTransaction)));
+            sb.append(" ");
+
+            if (shouldConvertCurrency(currentTransaction)) {
+                sb.append("EUR");
+                sb.append(" (");
+                sb.append(getString(R.string.transaction_list_conversionrate_description));
+                sb.append(" ");
+                sb.append(currentTransaction.getCurrency());
+                sb.append(" = ");
+                sb.append(String.format("%f", currentTransaction.getConversionRate()));
+                sb.append(")");
+            } else {
+                sb.append(currentTransaction.getCurrency());
+            }
+
+
+            return sb.toString();
+        }
+
+        private Double getTransactionValue(Transaction currentTransaction) {
+            double value = currentTransaction.getValue();
+
+            if (shouldConvertCurrency(currentTransaction)) {
+                value /= currentTransaction.getConversionRate();
+            }
+
+            return value;
+        }
+
+        private boolean shouldConvertCurrency(Transaction currentTransaction) {
+            return currentTransaction.getCurrency() != "EUR" && currentTransaction.getConversionRate() != 0D;
         }
     }
 }

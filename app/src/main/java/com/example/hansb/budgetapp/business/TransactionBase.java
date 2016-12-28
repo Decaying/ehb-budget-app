@@ -11,17 +11,19 @@ public abstract class TransactionBase implements Transaction {
     protected final String description;
     protected final String currency;
     private final Date createdDateTime;
+    private final Double conversionRate;
 
-    TransactionBase(long id, double value, String description, String currency, Date createdDateTime) {
+    TransactionBase(long id, double value, String description, String currency, Date createdDateTime, double conversionRate) {
         this.id = id;
         this.value = value;
         this.description = description;
         this.currency = currency;
         this.createdDateTime = createdDateTime;
+        this.conversionRate = conversionRate;
     }
 
     public TransactionBase(double value, String description, String currency, Date createdDateTime) {
-        this(0, value, description, currency, createdDateTime);
+        this(0, value, description, currency, createdDateTime, 0D);
     }
 
     @Override
@@ -47,5 +49,10 @@ public abstract class TransactionBase implements Transaction {
     @Override
     public Date getCreatedDateTime() {
         return createdDateTime;
+    }
+
+    @Override
+    public Double getConversionRate() {
+        return conversionRate;
     }
 }

@@ -31,13 +31,37 @@ public class MainActivityTests extends MainActivityTestBase {
     @Test
     public void testThatListViewContainsDetails() throws Exception {
         String transactionDescription = "Purchased an instrumentation test";
-        getFakeTransactionRepository().whenOneDepositTransactionIsAvailable(123.7458, transactionDescription, "EUR");
+        getFakeTransactionRepository().whenOneDepositTransactionIsAvailable(123.7458, transactionDescription);
         MainActivity activity = getSut();
 
         View transactionView = getTransactionItemView(activity, 0);
 
         assertThat(getHeaderLine(transactionView).getText().toString(), is(transactionDescription));
-        assertThat(getDetailLine(transactionView).getText().toString(), is("Transaction value: 123.75 EUR"));
+        assertThat(getDetailLine(transactionView).getText().toString(), is("Value: 123.75 EUR"));
+    }
+
+    @Test
+    public void testThatListViewContainsConversionDetails() throws Exception {
+        String transactionDescription = "Purchased an instrumentation test";
+        getFakeTransactionRepository().whenOneDepositTransactionIsAvailable(1.04, transactionDescription, "USD", 1.04);
+        MainActivity activity = getSut();
+
+        View transactionView = getTransactionItemView(activity, 0);
+
+        assertThat(getHeaderLine(transactionView).getText().toString(), is(transactionDescription));
+        assertThat(getDetailLine(transactionView).getText().toString(), is("Value: 1.00 EUR (Rate USD = 1.040000)"));
+    }
+
+    @Test
+    public void testThatListViewContainsForeignCurrencyWithoutConversion() throws Exception {
+        String transactionDescription = "Purchased an instrumentation test";
+        getFakeTransactionRepository().whenOneDepositTransactionIsAvailable(1.04, transactionDescription, "USD");
+        MainActivity activity = getSut();
+
+        View transactionView = getTransactionItemView(activity, 0);
+
+        assertThat(getHeaderLine(transactionView).getText().toString(), is(transactionDescription));
+        assertThat(getDetailLine(transactionView).getText().toString(), is("Value: 1.04 USD"));
     }
 
     @Test

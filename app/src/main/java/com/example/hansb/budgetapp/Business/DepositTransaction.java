@@ -7,8 +7,8 @@ import java.util.Date;
  */
 
 public class DepositTransaction extends TransactionBase {
-    DepositTransaction(long id, double value, String description, String currency, Date createdDateTime) {
-        super(id, value, description, currency, createdDateTime);
+    DepositTransaction(long id, double value, String description, String currency, Date createdDateTime, double conversionRate) {
+        super(id, value, description, currency, createdDateTime, conversionRate);
     }
 
     public DepositTransaction(double value, String description, String currency, Date creationDateTime) {

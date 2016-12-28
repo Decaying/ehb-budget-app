@@ -7,7 +7,7 @@ import java.util.Date;
  */
 
 public interface SqlTransactionFactory {
-    Transaction createFromSql(String type, long id, String description, double value, String currency, Date dateTimeCreated) throws Exception;
+    Transaction createFromSql(String type, long id, String description, double value, String currency, Date dateTimeCreated, Double conversionRate) throws Exception;
 
     String getSqlTypeDeposit();
 

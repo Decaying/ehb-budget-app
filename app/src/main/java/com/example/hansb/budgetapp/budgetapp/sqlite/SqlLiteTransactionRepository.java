@@ -40,15 +40,18 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         private static final String TYPE = "type";
         private static final String TYPE_TYPE = "TEXT NOT NULL";
 
-        private static final String CURRENCY = "CURRENCY";
+        private static final String CURRENCY = "currency";
         private static final String CURRENCY_TYPE = "TEXT NOT NULL";
 
-        private static final String CREATED_AT = "CREATEDAT";
+        private static final String CREATED_AT = "createdAt";
         private static final String CREATED_AT_TYPE = "INTEGER";
+
+        private static final String CONVERSION_RATE = "conversionRate";
+        private static final String CONVERSION_RATE_TYPE = "REAL";
     }
 
     private static final String DATABASE_NAME = "budgetapp.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     private String[] projection = {
             TransactionEntry.ID,
@@ -56,7 +59,8 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
             TransactionEntry.VALUE,
             TransactionEntry.TYPE,
             TransactionEntry.CURRENCY,
-            TransactionEntry.CREATED_AT
+            TransactionEntry.CREATED_AT,
+            TransactionEntry.CONVERSION_RATE
     };
 
     public SqlLiteTransactionRepository(AppInjector injector) {
@@ -76,7 +80,8 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
                         TransactionEntry.TYPE + " " + TransactionEntry.TYPE_TYPE + "," +
                         TransactionEntry.VALUE + " " + TransactionEntry.VALUE_TYPE + "," +
                         TransactionEntry.CURRENCY + " " + TransactionEntry.CURRENCY_TYPE + "," +
-                        TransactionEntry.CREATED_AT + " " + TransactionEntry.CREATED_AT_TYPE +
+                        TransactionEntry.CREATED_AT + " " + TransactionEntry.CREATED_AT_TYPE + "," +
+                        TransactionEntry.CONVERSION_RATE + " " + TransactionEntry.CONVERSION_RATE_TYPE +
                         ")";
 
         db.execSQL(CREATE_TRANSACTIONS_TABLE);
@@ -192,10 +197,11 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         String description = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.DESCRIPTION));
         double value = cursor.getDouble(cursor.getColumnIndexOrThrow(TransactionEntry.VALUE));
         String currency = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.CURRENCY));
+        Double conversionRate = cursor.getDouble(cursor.getColumnIndexOrThrow(TransactionEntry.CONVERSION_RATE));
         Long transactionDateTimeFromDb = cursor.getLong(cursor.getColumnIndexOrThrow(TransactionEntry.CREATED_AT));
         Date transactionDateTime = new Date(transactionDateTimeFromDb);
 
-        return transactionFactory.createFromSql(type, id, description, value, currency, transactionDateTime);
+        return transactionFactory.createFromSql(type, id, description, value, currency, transactionDateTime, conversionRate);
     }
 
     @Override
@@ -219,6 +225,41 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         return null;
     }
 
+    @Override
+    public void setConversionRateFor(Long transactionId, Double conversionRate) {
+        logger.debug("Initialize database access");
+        SQLiteDatabase db = getWritableDatabase();
+
+        try {
+            logger.debug("Setting transaction conversion rate");
+            updateTransactionConversionRate(db, transactionId, conversionRate);
+            logger.debug("Setting transaction conversion rate completed");
+        } finally {
+            db.close();
+        }
+    }
+
+    private void updateTransactionConversionRate(SQLiteDatabase db, Long transactionId, Double conversionRate) {
+        db.beginTransaction();
+
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TransactionEntry.CONVERSION_RATE, conversionRate);
+
+            int rowsAffected = db.update(TransactionEntry.TABLE_NAME,
+                    contentValues,
+                    TransactionEntry.ID + "=" + transactionId,
+                    null);
+
+            if (rowsAffected != 1)
+                logger.error("Unable to update transaction with id " + transactionId);
+            else
+                db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     private long insertTransaction(SQLiteDatabase db, Transaction transaction) {
         ContentValues values = new ContentValues();
 
@@ -226,6 +267,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         values.put(TransactionEntry.VALUE, transaction.getValue());
         values.put(TransactionEntry.CURRENCY, transaction.getCurrency());
         values.put(TransactionEntry.CREATED_AT, transaction.getCreatedDateTime().getTime());
+        values.put(TransactionEntry.CONVERSION_RATE, transaction.getConversionRate());
 
         if (transaction instanceof DepositTransaction)
             values.put(TransactionEntry.TYPE, transactionFactory.getSqlTypeDeposit());

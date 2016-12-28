@@ -2,11 +2,15 @@ package com.example.hansb.budgetapp.services;
 
 import android.content.Context;
 
+import com.birbit.android.jobqueue.Job;
 import com.birbit.android.jobqueue.JobManager;
 import com.birbit.android.jobqueue.config.Configuration;
+import com.birbit.android.jobqueue.di.DependencyInjector;
 import com.birbit.android.jobqueue.log.CustomLogger;
 import com.birbit.android.jobqueue.scheduling.FrameworkJobSchedulerService;
 import com.example.hansb.budgetapp.AppInjector;
+import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
+import com.example.hansb.budgetapp.services.jobs.DetermineTransactionConversionRateJob;
 
 import org.apache.logging.log4j.Logger;
 
@@ -19,10 +23,12 @@ public class JobManagerConfigurator {
     private final Logger logger;
     private final Context context;
     private JobManager jobmanager;
+    private TransactionRepository transactionRepository;
 
     public JobManagerConfigurator(AppInjector injector) {
         this.logger = injector.getLogger(JobManagerConfigurator.class);
         this.context = injector.getContext();
+        this.transactionRepository = injector.getTransactionRepository();
     }
 
     public JobManager getJobmanager() {
@@ -37,6 +43,17 @@ public class JobManagerConfigurator {
                 .maxConsumerCount(3) // up to 3 consumers at a time
                 .loadFactor(3) // 3 jobs per consumer
                 .consumerKeepAlive(120) // wait 2 minute
+                .injector(new DependencyInjector() {
+                    @Override
+                    public void inject(Job job) {
+                        DetermineTransactionConversionRateJob determineTransactionConversionRateJob = (DetermineTransactionConversionRateJob) job;
+
+                        if (determineTransactionConversionRateJob != null) {
+                            determineTransactionConversionRateJob.setLogger(logger);
+                            determineTransactionConversionRateJob.setTransactionRepository(transactionRepository);
+                        }
+                    }
+                })
                 .customLogger(new CustomLogger() {
                     @Override
                     public boolean isDebugEnabled() {

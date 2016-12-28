@@ -10,4 +10,6 @@ public interface TransactionRepository {
     Transaction[] getAllTransactions() throws Exception;
 
     Transaction saveTransaction(Transaction transaction);
+
+    void setConversionRateFor(Long transactionId, Double conversionRate);
 }

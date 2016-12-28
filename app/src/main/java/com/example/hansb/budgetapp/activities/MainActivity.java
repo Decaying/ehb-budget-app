@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
         logger = Injector.getLogger(MainActivity.class);
         logger.debug("Creating activity");
 
+        startJobService();
+
         setContentView(R.layout.activity_main);
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -40,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             displayTransactionList();
         }
+    }
+
+    private void startJobService() {
+        Injector.getJobService();
     }
 
     private void handleUncaughtException(Thread thread, Throwable ex) {
