@@ -9,7 +9,9 @@
     <string name="withdraw_description">Withdraw</string>
     <string name="select_transaction_currency_prompt">Select currency</string>
     <string name="transaction_select_currency_label">Currency</string>
-    <string name="transaction_list_description" formatted="false">Transaction value: %.2f %s</string>
+    <string name="transaction_list_description">Value:</string>
+    <string name="transaction_list_conversionrate_description">Rate</string>
+    <string name="menu_refresh">Refresh</string>
     <string-array name="currency_arrays">
         <item>EUR</item>
         <item>USD</item>

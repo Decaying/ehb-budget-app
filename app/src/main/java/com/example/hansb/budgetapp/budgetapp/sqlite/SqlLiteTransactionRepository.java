@@ -1,6 +1,7 @@
 package com.example.hansb.budgetapp.budgetapp.sqlite;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -12,8 +13,7 @@ import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.SqlTransactionFactory;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.WithdrawTransaction;
-
-import org.apache.logging.log4j.Logger;
+import com.noveogroup.android.log.Logger;
 
 import java.util.Date;
 
@@ -40,15 +40,18 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         private static final String TYPE = "type";
         private static final String TYPE_TYPE = "TEXT NOT NULL";
 
-        private static final String CURRENCY = "CURRENCY";
+        private static final String CURRENCY = "currency";
         private static final String CURRENCY_TYPE = "TEXT NOT NULL";
 
-        private static final String CREATED_AT = "CREATEDAT";
+        private static final String CREATED_AT = "createdAt";
         private static final String CREATED_AT_TYPE = "INTEGER";
+
+        private static final String CONVERSION_RATE = "conversionRate";
+        private static final String CONVERSION_RATE_TYPE = "REAL";
     }
 
     private static final String DATABASE_NAME = "budgetapp.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     private String[] projection = {
             TransactionEntry.ID,
@@ -56,18 +59,19 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
             TransactionEntry.VALUE,
             TransactionEntry.TYPE,
             TransactionEntry.CURRENCY,
-            TransactionEntry.CREATED_AT
+            TransactionEntry.CREATED_AT,
+            TransactionEntry.CONVERSION_RATE
     };
 
-    public SqlLiteTransactionRepository(AppInjector injector) {
-        super(injector.getContext(), DATABASE_NAME, null, DATABASE_VERSION);
+    public SqlLiteTransactionRepository(Context context, AppInjector injector) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.transactionFactory = (SqlTransactionFactory) injector.getTransactionFactory();
         this.logger = injector.getLogger(SqlLiteTransactionRepository.class);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        logger.debug("Create transaction table");
+        logger.d("Create transaction table");
         String CREATE_TRANSACTIONS_TABLE =
                 "CREATE TABLE " + TransactionEntry.TABLE_NAME +
                         "(" +
@@ -76,7 +80,8 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
                         TransactionEntry.TYPE + " " + TransactionEntry.TYPE_TYPE + "," +
                         TransactionEntry.VALUE + " " + TransactionEntry.VALUE_TYPE + "," +
                         TransactionEntry.CURRENCY + " " + TransactionEntry.CURRENCY_TYPE + "," +
-                        TransactionEntry.CREATED_AT + " " + TransactionEntry.CREATED_AT_TYPE +
+                        TransactionEntry.CREATED_AT + " " + TransactionEntry.CREATED_AT_TYPE + "," +
+                        TransactionEntry.CONVERSION_RATE + " " + TransactionEntry.CONVERSION_RATE_TYPE +
                         ")";
 
         db.execSQL(CREATE_TRANSACTIONS_TABLE);
@@ -84,23 +89,23 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        logger.debug("Re-create database");
+        logger.d("Re-create database");
 
-        logger.debug("Drop transaction table");
+        logger.d("Drop transaction table");
         db.execSQL("DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME);
         onCreate(db);
     }
 
     @Override
     public Transaction[] getAllTransactions() throws Exception {
-        logger.debug("Initialize database access");
+        logger.d("Initialize database access");
         SQLiteDatabase db = getReadableDatabase();
         Transaction[] transactions = null;
 
         try {
-            logger.debug("Loading transactions from database");
+            logger.d("Loading transactions from database");
             transactions = queryDatabaseForTransactions(db);
-            logger.debug("Loading transactions from database completed");
+            logger.d("Loading transactions from database completed");
         } finally {
             db.close();
         }
@@ -131,13 +136,36 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         return transactions;
     }
 
+    private Transaction queryDatabaseForTransaction(SQLiteDatabase db, long id) throws Exception {
+        Cursor cursor = null;
+        Transaction transaction = null;
+
+        try {
+            cursor = db.query(TransactionEntry.TABLE_NAME,
+                    projection,
+                    TransactionEntry.ID + "=" + id,
+                    null,
+                    null,
+                    null,
+                    null);
+
+            transaction = readTransactionFrom(cursor);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return transaction;
+    }
+
     @NonNull
     private Transaction[] readTransactionsFrom(Cursor cursor) throws Exception {
         Transaction[] transactions;
 
         int numberOfTransactions = cursor.getCount();
 
-        logger.debug(String.format("loaded %d transactions", numberOfTransactions));
+        logger.d(String.format("loaded %d transactions", numberOfTransactions));
         transactions = new Transaction[numberOfTransactions];
 
         if (cursor.moveToFirst()) {
@@ -152,45 +180,100 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
         return transactions;
     }
 
+    @NonNull
+    private Transaction readTransactionFrom(Cursor cursor) throws Exception {
+        Transaction transaction = null;
+
+        if (cursor.moveToFirst()) {
+            transaction = createTransactionFrom(cursor);
+        }
+
+        return transaction;
+    }
+
     private Transaction createTransactionFrom(Cursor cursor) throws Exception {
         Long id = cursor.getLong(cursor.getColumnIndex(TransactionEntry.ID));
         String type = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.TYPE));
         String description = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.DESCRIPTION));
         double value = cursor.getDouble(cursor.getColumnIndexOrThrow(TransactionEntry.VALUE));
         String currency = cursor.getString(cursor.getColumnIndexOrThrow(TransactionEntry.CURRENCY));
+        Double conversionRate = cursor.getDouble(cursor.getColumnIndexOrThrow(TransactionEntry.CONVERSION_RATE));
         Long transactionDateTimeFromDb = cursor.getLong(cursor.getColumnIndexOrThrow(TransactionEntry.CREATED_AT));
         Date transactionDateTime = new Date(transactionDateTimeFromDb);
 
-        return transactionFactory.createFromSql(type, id, description, value, currency, transactionDateTime);
+        return transactionFactory.createFromSql(type, id, description, value, currency, transactionDateTime, conversionRate);
     }
 
     @Override
-    public void saveTransaction(Transaction transaction) {
-        logger.debug("Initialize database access");
+    public Transaction saveTransaction(Transaction transaction) {
+        logger.d("Initialize database access");
+        SQLiteDatabase db = getWritableDatabase();
+
+        long transactionId;
+
+        try {
+            logger.d("Writing transaction to database");
+            transactionId = insertTransaction(db, transaction);
+            logger.d("Writing transaction to database completed");
+
+            return queryDatabaseForTransaction(db, transactionId);
+        } catch (Exception e) {
+            logger.e("Unable to write to database", e);
+        } finally {
+            db.close();
+        }
+        return null;
+    }
+
+    @Override
+    public void setConversionRateFor(Long transactionId, Double conversionRate) {
+        logger.d("Initialize database access");
         SQLiteDatabase db = getWritableDatabase();
 
         try {
-            logger.debug("Writing transaction to database");
-            insertTransaction(db, transaction);
-            logger.debug("Writing transaction to database completed");
+            logger.d("Setting transaction conversion rate");
+            updateTransactionConversionRate(db, transactionId, conversionRate);
+            logger.d("Setting transaction conversion rate completed");
         } finally {
             db.close();
         }
     }
 
-    private void insertTransaction(SQLiteDatabase db, Transaction transaction) {
+    private void updateTransactionConversionRate(SQLiteDatabase db, Long transactionId, Double conversionRate) {
+        db.beginTransaction();
+
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TransactionEntry.CONVERSION_RATE, conversionRate);
+
+            int rowsAffected = db.update(TransactionEntry.TABLE_NAME,
+                    contentValues,
+                    TransactionEntry.ID + "=" + transactionId,
+                    null);
+
+            if (rowsAffected != 1)
+                logger.e("Unable to update transaction with id " + transactionId);
+            else
+                db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private long insertTransaction(SQLiteDatabase db, Transaction transaction) {
         ContentValues values = new ContentValues();
 
         values.put(TransactionEntry.DESCRIPTION, transaction.getDescription());
         values.put(TransactionEntry.VALUE, transaction.getValue());
         values.put(TransactionEntry.CURRENCY, transaction.getCurrency());
         values.put(TransactionEntry.CREATED_AT, transaction.getCreatedDateTime().getTime());
+        values.put(TransactionEntry.CONVERSION_RATE, transaction.getConversionRate());
 
         if (transaction instanceof DepositTransaction)
             values.put(TransactionEntry.TYPE, transactionFactory.getSqlTypeDeposit());
         if (transaction instanceof WithdrawTransaction)
             values.put(TransactionEntry.TYPE, transactionFactory.getSqlTypeWithdraw());
 
-        db.insertOrThrow(TransactionEntry.TABLE_NAME, null, values);
+        return db.insertOrThrow(TransactionEntry.TABLE_NAME, null, values);
     }
 }

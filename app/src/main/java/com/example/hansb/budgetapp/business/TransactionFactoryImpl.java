@@ -23,15 +23,15 @@ public class TransactionFactoryImpl implements SqlTransactionFactory, Transactio
 
 
     @Override
-    public Transaction createFromSql(String type, long id, String description, double value, String currency, Date dateTimeCreated) throws Exception {
+    public Transaction createFromSql(String type, long id, String description, double value, String currency, Date dateTimeCreated, Double conversionRate) throws Exception {
         Transaction transaction;
 
         switch (type) {
             case depositType:
-                transaction = new DepositTransaction(id, value, description, currency, dateTimeCreated);
+                transaction = new DepositTransaction(id, value, description, currency, dateTimeCreated, conversionRate);
                 break;
             case withdrawType:
-                transaction = new WithdrawTransaction(id, value, description, currency, dateTimeCreated);
+                transaction = new WithdrawTransaction(id, value, description, currency, dateTimeCreated, conversionRate);
                 break;
             default:
                 throw new Exception("Invalid transaction type: " + type);

@@ -43,8 +43,6 @@ public abstract class ActivityTestBase<T extends Activity> extends Instrumentati
         activityRule = new ActivityTestRule<>(activityType, true, false);
         this.injectInstrumentation(InstrumentationRegistry.getInstrumentation());
 
-        getIntent();
-
         activityRule.launchActivity(getIntent());
 
         return activityRule.getActivity();
@@ -64,7 +62,7 @@ public abstract class ActivityTestBase<T extends Activity> extends Instrumentati
                 .perform(typeText(text), closeSoftKeyboard());
     }
 
-    protected void clickUpNavigation(TransactionDetailActivity activity) {
+    protected void clickUpNavigation() {
         onView(withContentDescription("Navigate up")).perform(click());
     }
 

@@ -42,11 +42,11 @@ public class TransactionDetailActivityTestBase extends ActivityTestBase<Transact
     public void configureContainer(TestAppInjector injector) {
         super.configureContainer(injector);
 
-        TransactionDetailActivity.Injector = injector;
-        fakeTransactionRepository = new FakeTransactionRepository(injector);
         fakeTimeService = new FakeTimeService();
-        injector.setTransactionRepository(fakeTransactionRepository);
         injector.setTimeService(fakeTimeService);
+
+        fakeTransactionRepository = new FakeTransactionRepository(injector);
+        injector.setTransactionRepository(fakeTransactionRepository);
     }
 
     @Override

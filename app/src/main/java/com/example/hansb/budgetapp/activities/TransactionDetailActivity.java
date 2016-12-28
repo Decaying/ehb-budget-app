@@ -6,7 +6,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.activities.fragments.CreateTransactionFragment;
 
@@ -15,9 +14,6 @@ import com.example.hansb.budgetapp.activities.fragments.CreateTransactionFragmen
  */
 
 public class TransactionDetailActivity extends AppCompatActivity {
-
-    public static AppInjector Injector;
-
     public enum Mode {
         Create
     }
@@ -27,9 +23,6 @@ public class TransactionDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        if (Injector == null)
-            Injector = MainActivity.Injector;
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle parameters = getIntent().getExtras();
@@ -37,7 +30,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             Mode mode = (Mode) parameters.get("mode");
 
-            Fragment fragment = getTransactionDetailFragment(Injector, mode);
+            Fragment fragment = getTransactionDetailFragment(mode);
 
             getFragmentManager()
                     .beginTransaction()
@@ -46,10 +39,10 @@ public class TransactionDetailActivity extends AppCompatActivity {
         }
     }
 
-    private Fragment getTransactionDetailFragment(AppInjector injector, Mode mode) {
+    private Fragment getTransactionDetailFragment(Mode mode) {
         switch (mode) {
             case Create:
-                return new CreateTransactionFragment(injector);
+                return new CreateTransactionFragment();
             default:
                 throw new UnsupportedOperationException("invalid transaction detail mode");
         }

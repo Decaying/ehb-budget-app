@@ -9,5 +9,7 @@ import com.example.hansb.budgetapp.business.Transaction;
 public interface TransactionRepository {
     Transaction[] getAllTransactions() throws Exception;
 
-    void saveTransaction(Transaction transaction);
+    Transaction saveTransaction(Transaction transaction);
+
+    void setConversionRateFor(Long transactionId, Double conversionRate);
 }

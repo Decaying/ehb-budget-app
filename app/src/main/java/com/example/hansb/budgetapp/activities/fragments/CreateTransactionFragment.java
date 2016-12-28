@@ -1,6 +1,5 @@
 package com.example.hansb.budgetapp.activities.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,16 +12,16 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 
-import com.example.hansb.budgetapp.AppInjector;
+import com.example.hansb.budgetapp.AppInjectorImpl;
 import com.example.hansb.budgetapp.R;
-import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.TransactionFactory;
+import com.example.hansb.budgetapp.services.JobQueue;
 import com.example.hansb.budgetapp.services.TimeService;
+import com.example.hansb.budgetapp.services.jobs.DetermineTransactionConversionRateJob;
 import com.google.common.base.Strings;
 import com.google.common.primitives.Doubles;
-
-import org.apache.logging.log4j.Logger;
+import com.noveogroup.android.log.Logger;
 
 import java.util.Date;
 
@@ -34,37 +33,32 @@ public class CreateTransactionFragment
         extends Fragment
         implements Button.OnClickListener {
     private final Logger logger;
-    private final TransactionRepository transactionRepository;
     private final TimeService timeService;
+    private final JobQueue jobQueue;
     private TransactionFactory transactionFactory;
 
     public CreateTransactionFragment() {
         super();
 
-        throw new UnsupportedOperationException("we need an injector");
-    }
-
-    @SuppressLint("ValidFragment")
-    public CreateTransactionFragment(AppInjector injector) {
-        super();
+        AppInjectorImpl injector = AppInjectorImpl.getInstance();
 
         this.logger = injector.getLogger(CreateTransactionFragment.class);
-        this.transactionRepository = injector.getTransactionRepository();
         this.transactionFactory = injector.getTransactionFactory();
         this.timeService = injector.getTimeService();
+        this.jobQueue = injector.getJobQueue(getActivity());
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        logger.debug("Creating transaction detail fragment view");
+        logger.d("Creating transaction detail fragment view");
         return inflater.inflate(R.layout.transaction_detail_fragment,
                 container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        logger.debug("transaction detail fragment view has been created");
+        logger.d("transaction detail fragment view has been created");
         super.onActivityCreated(savedInstanceState);
 
         Button saveTransactionButton = getSaveTransactionButtonView();
@@ -83,18 +77,22 @@ public class CreateTransactionFragment
         String currency = getCurrency();
 
         if (!validateTransaction(description, value)) {
-            logger.debug("validation of transaction values failed");
+            logger.d("validation of transaction values failed");
             return;
         }
 
-        logger.debug("validation of transaction values success");
+        logger.d("validation of transaction values success");
         Transaction transaction = tryCreateTransaction(type, description, value, currency);
 
         if (transaction != null) {
-            logger.info(String.format("Saving transaction '%s'", description));
-            transactionRepository.saveTransaction(transaction);
+            logger.v(String.format("Saving transaction '%s'", description));
+            Transaction newTransaction = AppInjectorImpl.getInstance().getTransactionRepository(getActivity()).saveTransaction(transaction);
 
-            navigateToParent();
+            if (newTransaction != null) {
+                jobQueue.addJobInBackground(new DetermineTransactionConversionRateJob(newTransaction));
+
+                navigateToParent();
+            }
         }
     }
 
@@ -115,7 +113,7 @@ public class CreateTransactionFragment
         try {
             return transactionFactory.create(transactionType, description, value, currency, now);
         } catch (Exception ex) {
-            logger.error("Failed to create transaction", ex);
+            logger.e("Failed to create transaction", ex);
         }
 
         return null;
@@ -152,26 +150,26 @@ public class CreateTransactionFragment
 
     private boolean validateTransaction(String description, Double value) {
         boolean hasError = false;
-        logger.debug("validating transaction values");
+        logger.d("validating transaction values");
 
         if (Strings.isNullOrEmpty(description)) {
             EditText descriptionView = getTransactionDescriptionView();
             descriptionView.setError(getString(R.string.transaction_description_error));
             hasError = true;
-            logger.error(getString(R.string.transaction_description_error));
+            logger.e(getString(R.string.transaction_description_error));
         }
         if (value <= 0) {
             EditText valueView = getTransactionValueView();
             valueView.setError(getString(R.string.transaction_value_error));
             hasError = true;
-            logger.error(getString(R.string.transaction_value_error));
+            logger.e(getString(R.string.transaction_value_error));
         }
 
         return !hasError;
     }
 
     private void navigateToParent() {
-        logger.debug("navigating to parent activity");
+        logger.d("navigating to parent activity");
         startActivity(NavUtils.getParentActivityIntent(getActivity()));
     }
 

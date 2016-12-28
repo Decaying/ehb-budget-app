@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 public class SqlLiteTransactionRepositoryTests extends InstrumentationTestBase<SqlLiteTransactionRepository> {
     @Override
     public SqlLiteTransactionRepository getSut() {
-        return new SqlLiteTransactionRepository(new AppInjectorImpl(getInstrumentation().getTargetContext()));
+        return new SqlLiteTransactionRepository(getInstrumentation().getTargetContext(), AppInjectorImpl.getInstance());
     }
 
     @LargeTest
@@ -27,6 +27,6 @@ public class SqlLiteTransactionRepositoryTests extends InstrumentationTestBase<S
 
         assertThat(transactions, is(notNullValue()));
 
-        Logger.info(String.format("Found %d transactions", transactions.length));
+        Logger.v(String.format("Found %d transactions", transactions.length));
     }
 }
