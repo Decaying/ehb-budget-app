@@ -11,6 +11,7 @@
     <string name="transaction_select_currency_label">Currency</string>
     <string name="transaction_list_description">Value:</string>
     <string name="transaction_list_conversionrate_description">Rate</string>
+    <string name="menu_refresh">Refresh</string>
     <string-array name="currency_arrays">
         <item>EUR</item>
         <item>USD</item>

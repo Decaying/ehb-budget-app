@@ -1,6 +1,7 @@
 package com.example.hansb.budgetapp.services;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.birbit.android.jobqueue.Job;
 import com.birbit.android.jobqueue.JobManager;
@@ -8,11 +9,13 @@ import com.birbit.android.jobqueue.config.Configuration;
 import com.birbit.android.jobqueue.di.DependencyInjector;
 import com.birbit.android.jobqueue.log.CustomLogger;
 import com.birbit.android.jobqueue.scheduling.FrameworkJobSchedulerService;
+import com.birbit.android.jobqueue.scheduling.GcmJobSchedulerService;
 import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.services.jobs.DetermineTransactionConversionRateJob;
-
-import org.apache.logging.log4j.Logger;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.noveogroup.android.log.Logger;
 
 /**
  * Created by HansB on 27/12/2016.
@@ -62,27 +65,35 @@ public class JobManagerConfigurator {
 
                     @Override
                     public void d(String text, Object... args) {
-                        logger.debug(String.format(text, args));
+                        logger.d(String.format(text, args));
                     }
 
                     @Override
                     public void e(Throwable t, String text, Object... args) {
-                        logger.error(String.format(text, args), t);
+                        logger.e(String.format(text, args), t);
                     }
 
                     @Override
                     public void e(String text, Object... args) {
-                        logger.error(String.format(text, args));
+                        logger.e(String.format(text, args));
                     }
 
                     @Override
                     public void v(String text, Object... args) {
-                        logger.info(String.format(text, args));
+                        logger.v(String.format(text, args));
                     }
                 });
 
-        builder.scheduler(FrameworkJobSchedulerService.createSchedulerFor(context,
-                BudgetJobServiceImpl.class), true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.scheduler(FrameworkJobSchedulerService.createSchedulerFor(context,
+                    BudgetJobServiceImpl.class));
+        } else {
+            int enableGcm = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+            if (enableGcm == ConnectionResult.SUCCESS) {
+                builder.scheduler(GcmJobSchedulerService.createSchedulerFor(context,
+                        BudgetGcmJobServiceImpl.class), false);
+            }
+        }
         return new JobManager(builder.build());
     }
 }

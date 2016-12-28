@@ -2,21 +2,19 @@ package com.example.hansb.budgetapp;
 
 import android.content.Context;
 
+import com.birbit.android.jobqueue.JobManager;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.budgetapp.sqlite.SqlLiteTransactionRepository;
 import com.example.hansb.budgetapp.business.TransactionFactory;
 import com.example.hansb.budgetapp.business.TransactionFactoryImpl;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
 import com.example.hansb.budgetapp.interactor.TransactionInteractorImpl;
-import com.example.hansb.budgetapp.services.BudgetJobService;
-import com.example.hansb.budgetapp.services.BudgetJobServiceImpl;
 import com.example.hansb.budgetapp.services.JobManagerConfigurator;
 import com.example.hansb.budgetapp.services.TimeService;
 import com.example.hansb.budgetapp.services.TimeServiceImpl;
+import com.noveogroup.android.log.Logger;
+import com.noveogroup.android.log.LoggerManager;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.ConfigurationFactory;
 
 /**
  * Created by HansB on 23/12/2016.
@@ -24,12 +22,10 @@ import org.apache.logging.log4j.core.config.ConfigurationFactory;
 public class AppInjectorImpl implements AppInjector {
 
     private Context context;
-    private BudgetJobService budgetJobService;
+    private JobManager jobManager;
 
     public AppInjectorImpl(Context context) {
         this.context = context;
-
-        ConfigurationFactory.setConfigurationFactory(new BudgetAppConfigurationFactory());
     }
 
     @Override
@@ -39,7 +35,7 @@ public class AppInjectorImpl implements AppInjector {
 
     @Override
     public Logger getLogger(Class<?> type) {
-        return LogManager.getLogger(type);
+        return LoggerManager.getLogger(type);
     }
 
     @Override
@@ -63,10 +59,11 @@ public class AppInjectorImpl implements AppInjector {
     }
 
     @Override
-    public BudgetJobService getJobService() {
-        if (budgetJobService == null)
-            budgetJobService = new BudgetJobServiceImpl();
-        return budgetJobService;
+    public JobManager getJobManager() {
+        if (jobManager == null) {
+            jobManager = new JobManagerConfigurator(this).getJobmanager();
+        }
+        return jobManager;
     }
 
     @Override

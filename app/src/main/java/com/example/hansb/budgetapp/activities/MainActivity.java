@@ -8,8 +8,7 @@ import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.AppInjectorImpl;
 import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.activities.fragments.TransactionListFragment;
-
-import org.apache.logging.log4j.Logger;
+import com.noveogroup.android.log.Logger;
 
 import static java.lang.Thread.getDefaultUncaughtExceptionHandler;
 
@@ -26,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
             Injector = new AppInjectorImpl(getApplication());
 
         logger = Injector.getLogger(MainActivity.class);
-        logger.debug("Creating activity");
+        logger.d("Creating activity");
 
         startJobService();
 
@@ -45,18 +44,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startJobService() {
-        Injector.getJobService();
+        Injector.getJobManager();
     }
 
     private void handleUncaughtException(Thread thread, Throwable ex) {
         if (logger != null)
-            logger.error("An unexpected error occurred", ex);
+            logger.e("An unexpected error occurred", ex);
 
         getDefaultUncaughtExceptionHandler().uncaughtException(thread, ex);
     }
 
     private void displayTransactionList() {
-        logger.debug("Display transactions");
+        logger.d("Display transactions");
         Fragment transactionListFragment = new TransactionListFragment(Injector);
 
         getFragmentManager()

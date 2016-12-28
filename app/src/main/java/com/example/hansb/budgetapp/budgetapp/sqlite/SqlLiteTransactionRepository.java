@@ -12,8 +12,7 @@ import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.SqlTransactionFactory;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.business.WithdrawTransaction;
-
-import org.apache.logging.log4j.Logger;
+import com.noveogroup.android.log.Logger;
 
 import java.util.Date;
 
@@ -71,7 +70,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        logger.debug("Create transaction table");
+        logger.d("Create transaction table");
         String CREATE_TRANSACTIONS_TABLE =
                 "CREATE TABLE " + TransactionEntry.TABLE_NAME +
                         "(" +
@@ -89,23 +88,23 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        logger.debug("Re-create database");
+        logger.d("Re-create database");
 
-        logger.debug("Drop transaction table");
+        logger.d("Drop transaction table");
         db.execSQL("DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME);
         onCreate(db);
     }
 
     @Override
     public Transaction[] getAllTransactions() throws Exception {
-        logger.debug("Initialize database access");
+        logger.d("Initialize database access");
         SQLiteDatabase db = getReadableDatabase();
         Transaction[] transactions = null;
 
         try {
-            logger.debug("Loading transactions from database");
+            logger.d("Loading transactions from database");
             transactions = queryDatabaseForTransactions(db);
-            logger.debug("Loading transactions from database completed");
+            logger.d("Loading transactions from database completed");
         } finally {
             db.close();
         }
@@ -165,7 +164,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
         int numberOfTransactions = cursor.getCount();
 
-        logger.debug(String.format("loaded %d transactions", numberOfTransactions));
+        logger.d(String.format("loaded %d transactions", numberOfTransactions));
         transactions = new Transaction[numberOfTransactions];
 
         if (cursor.moveToFirst()) {
@@ -206,19 +205,19 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     @Override
     public Transaction saveTransaction(Transaction transaction) {
-        logger.debug("Initialize database access");
+        logger.d("Initialize database access");
         SQLiteDatabase db = getWritableDatabase();
 
         long transactionId;
 
         try {
-            logger.debug("Writing transaction to database");
+            logger.d("Writing transaction to database");
             transactionId = insertTransaction(db, transaction);
-            logger.debug("Writing transaction to database completed");
+            logger.d("Writing transaction to database completed");
 
             return queryDatabaseForTransaction(db, transactionId);
         } catch (Exception e) {
-            logger.error("Unable to write to database", e);
+            logger.e("Unable to write to database", e);
         } finally {
             db.close();
         }
@@ -227,13 +226,13 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
 
     @Override
     public void setConversionRateFor(Long transactionId, Double conversionRate) {
-        logger.debug("Initialize database access");
+        logger.d("Initialize database access");
         SQLiteDatabase db = getWritableDatabase();
 
         try {
-            logger.debug("Setting transaction conversion rate");
+            logger.d("Setting transaction conversion rate");
             updateTransactionConversionRate(db, transactionId, conversionRate);
-            logger.debug("Setting transaction conversion rate completed");
+            logger.d("Setting transaction conversion rate completed");
         } finally {
             db.close();
         }
@@ -252,7 +251,7 @@ public class SqlLiteTransactionRepository extends SQLiteOpenHelper implements Tr
                     null);
 
             if (rowsAffected != 1)
-                logger.error("Unable to update transaction with id " + transactionId);
+                logger.e("Unable to update transaction with id " + transactionId);
             else
                 db.setTransactionSuccessful();
         } finally {

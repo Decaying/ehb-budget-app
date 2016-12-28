@@ -2,14 +2,13 @@ package com.example.hansb.budgetapp;
 
 import android.content.Context;
 
+import com.birbit.android.jobqueue.JobManager;
 import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.TransactionFactory;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
-import com.example.hansb.budgetapp.services.BudgetJobService;
 import com.example.hansb.budgetapp.services.JobManagerConfigurator;
 import com.example.hansb.budgetapp.services.TimeService;
-
-import org.apache.logging.log4j.Logger;
+import com.noveogroup.android.log.Logger;
 
 /**
  * Created by HansB on 23/12/2016.
@@ -27,7 +26,7 @@ public interface AppInjector {
 
     TimeService getTimeService();
 
-    BudgetJobService getJobService();
+    JobManager getJobManager();
 
     JobManagerConfigurator getJobManagerConfigurator();
 }

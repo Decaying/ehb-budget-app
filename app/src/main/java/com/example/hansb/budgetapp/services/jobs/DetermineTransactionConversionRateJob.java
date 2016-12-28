@@ -10,8 +10,8 @@ import com.example.hansb.budgetapp.budgetapp.TransactionRepository;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.SyncHttpClient;
+import com.noveogroup.android.log.Logger;
 
-import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,12 +48,12 @@ public class DetermineTransactionConversionRateJob extends Job implements Serial
 
     @Override
     public void onAdded() {
-        logger.debug("added job to determine tranaction conversion rate for transaction with id " + transaction.getId());
+        logger.d("added job to determine tranaction conversion rate for transaction with id " + transaction.getId());
     }
 
     @Override
     public void onRun() throws Throwable {
-        logger.debug("running job to determine tranaction conversion rate for transaction with id " + transaction.getId());
+        logger.d("running job to determine tranaction conversion rate for transaction with id " + transaction.getId());
 
         SyncHttpClient client = new SyncHttpClient();
         client.get(getUrl(), new JsonHttpResponseHandler() {
@@ -66,7 +66,7 @@ public class DetermineTransactionConversionRateJob extends Job implements Serial
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable e, JSONObject errorResponse) {
-                logger.error("failed to call fixer.io api : " + errorResponse.toString(), e);
+                logger.e("failed to call fixer.io api : " + errorResponse.toString(), e);
             }
         });
     }
@@ -98,7 +98,7 @@ public class DetermineTransactionConversionRateJob extends Job implements Serial
 
     @Override
     protected void onCancel(int cancelReason, @Nullable Throwable throwable) {
-        logger.debug("cancelled job to determine tranaction conversion rate for transaction with id " + transaction.getId());
+        logger.d("cancelled job to determine tranaction conversion rate for transaction with id " + transaction.getId());
     }
 
     @Override

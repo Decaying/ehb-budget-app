@@ -27,6 +27,6 @@ public class SqlLiteTransactionRepositoryTests extends InstrumentationTestBase<S
 
         assertThat(transactions, is(notNullValue()));
 
-        Logger.info(String.format("Found %d transactions", transactions.length));
+        Logger.v(String.format("Found %d transactions", transactions.length));
     }
 }

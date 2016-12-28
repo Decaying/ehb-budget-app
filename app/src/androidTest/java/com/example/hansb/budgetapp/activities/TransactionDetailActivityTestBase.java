@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.example.hansb.budgetapp.FakeJobService;
 import com.example.hansb.budgetapp.FakeTimeService;
 import com.example.hansb.budgetapp.R;
 import com.example.hansb.budgetapp.TestAppInjector;
@@ -26,7 +25,6 @@ import static org.hamcrest.Matchers.is;
 public class TransactionDetailActivityTestBase extends ActivityTestBase<TransactionDetailActivity> {
     private com.example.hansb.budgetapp.repository.FakeTransactionRepository fakeTransactionRepository;
     private FakeTimeService fakeTimeService;
-    private FakeJobService fakeJobService;
 
     public TransactionDetailActivityTestBase() {
         super(TransactionDetailActivity.class);
@@ -47,9 +45,6 @@ public class TransactionDetailActivityTestBase extends ActivityTestBase<Transact
         TransactionDetailActivity.Injector = injector;
         fakeTimeService = new FakeTimeService();
         injector.setTimeService(fakeTimeService);
-
-        fakeJobService = new FakeJobService(injector);
-        injector.setJobService(fakeJobService);
 
         fakeTransactionRepository = new FakeTransactionRepository(injector);
         injector.setTransactionRepository(fakeTransactionRepository);

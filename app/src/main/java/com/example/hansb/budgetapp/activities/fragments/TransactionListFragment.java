@@ -5,10 +5,15 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -18,12 +23,12 @@ import android.widget.TextView;
 
 import com.example.hansb.budgetapp.AppInjector;
 import com.example.hansb.budgetapp.R;
+import com.example.hansb.budgetapp.activities.MainActivity;
 import com.example.hansb.budgetapp.activities.TransactionDetailActivity;
 import com.example.hansb.budgetapp.business.DepositTransaction;
 import com.example.hansb.budgetapp.business.Transaction;
 import com.example.hansb.budgetapp.interactor.TransactionInteractor;
-
-import org.apache.logging.log4j.Logger;
+import com.noveogroup.android.log.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,15 +40,14 @@ import java.util.List;
 
 public class TransactionListFragment
         extends Fragment
-        implements FloatingActionButton.OnClickListener {
+        implements FloatingActionButton.OnClickListener,
+        SwipeRefreshLayout.OnRefreshListener {
 
     private final Logger logger;
     private final TransactionInteractor transactionInteractor;
 
     public TransactionListFragment() {
-        super();
-
-        throw new UnsupportedOperationException("we need an injector");
+        this(MainActivity.Injector);
     }
 
     @SuppressLint("ValidFragment")
@@ -56,24 +60,57 @@ public class TransactionListFragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        logger.debug("Creating transaction list fragment view");
+        logger.d("Creating transaction list fragment view");
+        setRetainInstance(true);
         return inflater.inflate(R.layout.transaction_list_fragment,
                 container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        logger.debug("transaction list fragment view has been created");
+        logger.d("transaction list fragment view has been created");
         super.onActivityCreated(savedInstanceState);
 
-        logger.debug("Setting transaction adapter");
+        logger.d("Setting transaction adapter");
         ListView transactionsView = findListView();
         transactionsView.setAdapter(getTransactionAdapter());
 
         FloatingActionButton addTransactionButton = getAddTransactionButtonView();
         addTransactionButton.setOnClickListener(this);
 
+        SwipeRefreshLayout swipeRefreshLayout = getSwipeRefreshLayout();
+        swipeRefreshLayout.setOnRefreshListener(this);
+
         loadTransactions();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.transaction_list_menu, menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.transaction_list_menu_refresh:
+                onRefresh();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadTransactions();
+                getSwipeRefreshLayout().setRefreshing(false);
+            }
+        }, 100);
+
     }
 
     private ListView findListView() {
@@ -85,7 +122,7 @@ public class TransactionListFragment
     }
 
     private void loadTransactions() {
-        logger.debug("Loading transactions");
+        logger.d("Loading transactions");
         transactionInteractor.run(transactionInteractorCallback());
     }
 
@@ -100,7 +137,7 @@ public class TransactionListFragment
     }
 
     private void displayTransactions(List<Transaction> transactions) {
-        logger.debug("Transactions loaded, displaying now");
+        logger.d("Transactions loaded, displaying now");
         findListView().setAdapter(getTransactionAdapter(transactions));
     }
 
@@ -121,10 +158,14 @@ public class TransactionListFragment
     }
 
     private void createNewTransaction() {
-        logger.info("Creating a new transaction");
+        logger.v("Creating a new transaction");
         Intent createTransaction = new Intent(getActivity(), TransactionDetailActivity.class);
         createTransaction.putExtra("mode", TransactionDetailActivity.Mode.Create);
         startActivity(createTransaction);
+    }
+
+    public SwipeRefreshLayout getSwipeRefreshLayout() {
+        return (SwipeRefreshLayout) getActivity().findViewById(R.id.transactionlist_refresh);
     }
 
     private class TransactionAdapter extends ArrayAdapter<Transaction> {
@@ -184,7 +225,6 @@ public class TransactionListFragment
             } else {
                 sb.append(currentTransaction.getCurrency());
             }
-
 
             return sb.toString();
         }
